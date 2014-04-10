@@ -28,7 +28,11 @@ class Sc_Log {
         if(empty(static::$_data)){
             return ;
         }
-        $logfile = Sc::$rootDir.'/data/log/phpsync'.date('Y-n').'.log';
+        $path = Sc::$rootDir.'/data/log';
+        if(!is_dir($path)){
+            @mkdir($path,0777,true);
+        }
+        $logfile = $path.'/phpsync'.date('Y-n').'.log';
         error_log(date('Y-n-j H:i:s')."\r\n".implode(static::$_data),3,$logfile);
         static::$_data =array();
     }

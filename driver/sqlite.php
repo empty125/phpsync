@@ -21,6 +21,8 @@ class Sc_Sqlite {
      * @var type 
      */
     protected $_handle = NULL;
+    
+    private $_error = NULL;
 
     function __construct(){
         
@@ -76,11 +78,11 @@ class Sc_Sqlite {
         if($statement === false) {
             return false;
         }
-        $statement->bindValue(':hash',$this->_handle->escapeString($data['hash']));
-        $statement->bindValue(':node',$this->_handle->escapeString($data['node']));
-        $statement->bindValue(':fhash',$this->_handle->escapeString($data['fhash']));
-        $statement->bindValue(':savetime',time());
-        $statement->bindValue(':suffix',empty($data['suffix'])? '' : $this->_handle->escapeString($data['suffix']));
+        $statement->bindValue(':hash',$this->_handle->escapeString($data['hash']),SQLITE3_TEXT);
+        $statement->bindValue(':node',$this->_handle->escapeString($data['node']),SQLITE3_TEXT);
+        $statement->bindValue(':fhash',$this->_handle->escapeString($data['fhash']),SQLITE3_TEXT);
+        $statement->bindValue(':savetime',time(),SQLITE3_INTEGER);
+        $statement->bindValue(':suffix',empty($data['suffix'])? '' : $this->_handle->escapeString($data['suffix']),SQLITE3_TEXT);
         $result = $statement->execute();
         $statement->close();
         return $result!==false;
@@ -96,13 +98,14 @@ class Sc_Sqlite {
             $this->connect();
         }
         if(empty($hash)){
+            $this->_error='hash is required';
             return false;
         }
         $statement = $this->_handle->prepare('SELECT * FROM node_files WHERE hash=:hash');
         if($statement === false) {
             return false;
         }
-        $statement->bindValue(':hash',$this->_handle->escapeString($hash));
+        $statement->bindValue(':hash',$this->_handle->escapeString($hash),SQLITE3_TEXT);
         $result = $statement->execute();
         
         $rows = array();
@@ -134,7 +137,7 @@ class Sc_Sqlite {
     
     /**
      * 删除信息
-     * @param type $hash
+     * @param string|array $hash
      * @param type $node
      * @return boolean
      */
@@ -143,19 +146,42 @@ class Sc_Sqlite {
             $this->connect();
         }
         if(empty($hash)){
+            $this->_error='hash is required';
             return false;
         }
-        $sql = 'DELETE FROM node_files WHERE hash = :hash';
-        if(!empty($node)){
-            $sql.=' AND node = :node';
+        $condition = array();
+        if(is_string($hash)){
+            $condition[]['hash'] = $hash;
+            if($node!==NULL){
+                $condition[]['node'] = $node;
+            }
         }
+        $sql = 'DELETE FROM node_files WHERE';
+        
+        $conditionstr = array();
+        $i = 0;
+        $bindData = array();
+        foreach($condition as $con){
+            if(empty($con)){
+                continue;
+            }
+            $temp = array();
+            foreach($con as $k=>$v){
+                $temp[] = "{$k} = :param{$i}";
+                $bindData[":param{$i}"]=$v;
+                $i++;
+            }
+            $conditionstr[] = "(".implode(' AND ', $temp).")";
+        }
+        $sql.implode(' OR ', $conditionstr);
+        unset($con,$condition,$conditionstr);
+        
         $statement = $this->_handle->prepare($sql);
         if($statement === false) {
             return false;
         }
-        $statement->bindValue(':hash',$this->_handle->escapeString($hash));
-        if(!empty($node)){
-            $statement->bindValue(':node',$this->_handle->escapeString($node));
+        foreach($bindData as $k=>$v){
+            $statement->bindValue($k, $v,SQLITE3_TEXT);//这里只能用bindValue
         }
         $result = $statement->execute();
         $statement->close();
@@ -172,12 +198,20 @@ class Sc_Sqlite {
         if(!$this->isConnected){
             $this->connect();
         }
+        if(empty($hash)){
+             $this->_error='hash is required';
+             return false;
+        }
+        if(empty($node)){
+             $this->_error='node is required';
+             return false;
+        }
         $statement = $this->_handle->prepare('SELECT COUNT(*) AS count,savetime FROM node_files WHERE hash=:hash,node=:node');
         if($statement === false) {
             return false;
         }
-        $statement->bindValue(':hash',$hash);
-        $statement->bindValue(':node',$node);
+        $statement->bindValue(':hash',$hash,SQLITE3_TEXT);
+        $statement->bindValue(':node',$node,SQLITE3_TEXT);
         $result = $statement->execute();
         $row = $result->fetchArray(SQLITE3_ASSOC);
         
@@ -191,7 +225,11 @@ class Sc_Sqlite {
      * @return type
      */
     public function error(){
-        return $this->_handle->lastErrorMsg();
+        $error = $this->_handle->lastErrorMsg();
+        if(empty($error)){
+            $error = $this->_error;
+        }
+        return $error;
     }
 
 
