@@ -137,8 +137,11 @@ class Sc_Sqlite {
     
     /**
      * 删除信息
-     * @param string|array $hash
+     * @param string|array $hash 
      * @param type $node
+     * [$hash,$node]
+     * [array('hash'=>'','node'=>'')]
+     * [array(array('hash'=>'','node'=>''),array('hash'=>'','node'=>''),...)]
      * @return boolean
      */
     public function delete($hash,$node=NULL){
@@ -155,6 +158,8 @@ class Sc_Sqlite {
             if($node!==NULL){
                 $condition[]['node'] = $node;
             }
+        }else{
+            $condition = isset($hash['hash']) ? array($hash) : $hash;
         }
         $sql = 'DELETE FROM node_files WHERE';
         
@@ -173,7 +178,7 @@ class Sc_Sqlite {
             }
             $conditionstr[] = "(".implode(' AND ', $temp).")";
         }
-        $sql.implode(' OR ', $conditionstr);
+        $sql.=implode(' OR ', $conditionstr);
         unset($con,$condition,$conditionstr);
         
         $statement = $this->_handle->prepare($sql);
@@ -234,8 +239,8 @@ class Sc_Sqlite {
 
 
     public function __destruct(){
-        if(is_resource($this->handle)){
-            $this->handle->close();
+        if(is_resource($this->_handle)){
+            $this->_handle->close();
         }
     }
 }

@@ -1,0 +1,31 @@
+2014-4-11 12:41:58
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:42:06
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:42:20
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:42:28
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:43:07
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:47:59
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:48:00
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:48:07
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:48:15
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:48:16
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 12:48:25
+warn:[tracker search] bad hash parameter a[from 127.0.0.1]
+2014-4-11 15:20:41
+error:[tracker after add] add failure,array (
+  'hash' => '394659692a460258b45a99f1424ea357',
+  'fhash' => '0cc175b9c0f1b6a831c399e269772661',
+  'node' => '127.0.0.1',
+  'suffix' => '.jpg',
+)columns hash, node are not unique[from 127.0.0.1]
+2014-4-11 17:38:03
+notice:[tracker delete] bad name parameter [from 127.0.0.1]

@@ -1,15 +1,20 @@
 <?php
 /**
- * Description of Sc
- * 改动,不使用命名空间,使用前缀代替,简化代码,不要求可扩展性
+ * 简单分布式环境中文件被动同步
+ * https://github.com/empty125/phpsync
+ * 
+ * 改动,不使用命名空间,使用前缀代替,简化结构;
+ * bootstrap file,this is a free software!
+ * 
+ * @license http://www.apache.org/licenses/LICENSE-2.0
  * @author xilei
  */
 class Sc {
    
-    /**
-     *配置文件缓存
-     * @var type 
-     */
+   /**
+    *配置文件缓存
+    * @var type 
+    */
    static private $_conf = NULL;
    
    /**
@@ -60,7 +65,7 @@ class Sc {
     */
    static public function autoload($className){
        if(isset(static::$_classMap[$className])){
-           require __DIR__.static::$_classMap[$className];
+           require __DIR__.'/'.static::$_classMap[$className];
        }
    }
    
@@ -80,8 +85,8 @@ class Sc {
     */
    static public function getConfig($name){
        if(static::$_conf == NULL){
-           $filename = __DIR__.'/config.php';
-           if(file_exists($filename)){
+           $filename = Sc::$rootDir.'/config.php';
+           if(!file_exists($filename)){
                throw new Exception('配置文件没有找到', -100);
            }
            static::$_conf = require($filename);
@@ -94,11 +99,11 @@ class Sc {
     * @return type
     */
    static public function checkIsNameServer(){
-        if(static::$IS_NAME_SERVER === NULL){
-            static::$IS_NAME_SERVER = strpos(static::$conf['name_server'],$_SERVER['SERVER_ADDR'])!==false
+        if(static::$_isnameserver === NULL){
+            static::$_isnameserver = strpos(static::$conf['name_server'],$_SERVER['SERVER_ADDR'])!==false
              || strpos(static::$conf['name_server'],$_SERVER['HTTP_HOST'])!==false; 
         }
-        return static::$IS_NAME_SERVER;
+        return static::$_isnameserver;
    } 
   
   /**
@@ -112,6 +117,56 @@ class Sc {
      return static::$_client_ip;
    }
    
+   /**
+    * 
+    * @param type $hash
+    * @return type
+    */
+   static public function checkHash($hash){
+       return !empty($hash) && strlen($hash)==32;
+   }
    
+   /**
+    * 
+    * @param type $string
+    * @param type $isFile
+    * @return type
+    */
+   static public function hash($string,$isFile=false){
+       return $isFile ?  md5_file($string): md5($string);
+   }
    
+   /**
+    * 检查节点格式(IP)
+    * @todo ipv6
+    */
+   static public function checkNode($node){
+       return !empty($node) && count($_node = explode('.', $node))==4 && max($_node)<=255;
+   }
+   
+   /**
+    * 消息格式
+    * @param type $data
+    * @return type
+    */
+   static public function pack($data){
+       if(function_exists('msgpack_pack')){
+           return msgpack_pack($data);
+       }
+       return serialize($data);
+   }
+   
+   /**
+    * 消息格式
+    * @param type $str
+    * @return type
+    */
+   static public function unpack($str){
+       if(function_exists('msgpack_unpack')){
+           return msgpack_unpack($str);
+       }
+       return unserialize($str);
+   }
 }
+
+Sc::init();

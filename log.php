@@ -1,8 +1,7 @@
 <?php
-
 /**
  * Description of Sc_Log
- *
+ * 
  * @author xilei
  */
 class Sc_Log {
@@ -12,19 +11,28 @@ class Sc_Log {
     const NOTICE = 'notice';
     const INFO   = 'info';
     
-    private static $_data = array();
+    static private $_data = array();
     
-    public static  $suffix = '';
+    static public $suffix = '';
     
-    public static $levels = array('error','warn','notice','info');
-
-    public static function record($message,$level=self::ERROR){
+    static public $levels = array('error','warn','notice','info');
+    
+    /**
+     * 记录日志
+     * @param type $message
+     * @param type $level
+     */
+    static public function record($message,$level=self::ERROR){
         if(in_array($level, static::$levels)){
             static::$_data[] = "{$level}:{$message}[".static::$suffix."]\r\n";
         }
     }
     
-    public static function save(){
+    /**
+     * 写入日志
+     * @return type
+     */
+    static public function save(){
         if(empty(static::$_data)){
             return ;
         }
@@ -37,7 +45,25 @@ class Sc_Log {
         static::$_data =array();
     }
     
-    public static function enableLevel($level){
+    /**
+     * 检查日志级别是否可用
+     * @param type $level
+     * @return type
+     */
+    static public function enableLevel($level){
         return in_array($level, static::$levels);
+    }
+    
+    /**
+     * 设置日志级别
+     * @param type $levels
+     * @param type $delimiter
+     */
+    static public function setLevels($levels,$delimiter=','){
+        if(is_array($levels)){
+            static::$levels = $levels;
+        }elseif(is_string($levels)&& ($levels = strtolower($levels))!='all'){
+            static::$levels = explode($delimiter,$levels);
+        }
     }
 }
