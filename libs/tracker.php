@@ -151,6 +151,7 @@ class Sc_Tracker {
             if(Sc_Log::enableLevel(Sc_Log::WARN)){
                 Sc_Log::record('[tracker after add] exists,'.var_export($data, true),Sc_Log::WARN);
             }
+            return false;
         }
         if(!static::$_driver->add($data)){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
