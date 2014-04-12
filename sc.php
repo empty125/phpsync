@@ -24,14 +24,14 @@ class Sc {
    static private $_classMap=array(
        'Sc_Tracker'=>'./libs/tracker.php',
        'Sc_Storage'=>'./libs/storage.php',
-       'Sc_Log'=>'./log.php',
-       'Sc_Client'=>'./client.php',
-       'Sc_Util'=>'./util.php',
+       'Sc_Log'=>'./libs/log.php',
+       'Sc_Client'=>'./libs/client.php',
+       'Sc_Util'=>'./libs/util.php',
        'Sc_File'=>'./driver/file.php',
        'Sc_Sqlite'=>'./driver/sqlite.php',
        'Sc_Http'=>'./sync/http.php',
        'Sc_Cmd'=>'./sync/cmd.php',
-       'Sc_Client_Warpper'=>'./client_warpper.php'
+       'Sc_Client_Warpper'=>'./libs/client_warpper.php'
    );
    
    /**
