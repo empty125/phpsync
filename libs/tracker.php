@@ -147,6 +147,11 @@ class Sc_Tracker {
         if(empty($data)){
             return false;
         }
+        if(static::$_driver->exists($data['hash'],$data['node'])){
+            if(Sc_Log::enableLevel(Sc_Log::WARN)){
+                Sc_Log::record('[tracker after add] exists,'.var_export($data, true),Sc_Log::WARN);
+            }
+        }
         if(!static::$_driver->add($data)){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
                 Sc_Log::record('[tracker after add] failure,'.var_export($data, true).static::$_driver->error(),Sc_Log::ERROR);
