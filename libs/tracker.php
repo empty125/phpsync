@@ -90,13 +90,16 @@ class Sc_Tracker {
         if(!empty($data['delete']) && static::$_driver->delete($data['delete'])===FALSE){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
                 Sc_Log::record('[tracker after search] failure,'.var_export($data['dalete'], true).static::$_driver->error(),Sc_Log::ERROR);
-            }                
+            } 
+            return false;
         }
         if(!empty($data['add']) && !static::$_driver->add($data['add'])){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
                 Sc_Log::record('[tracker after search] failure,'.var_export($data['add'], true).static::$_driver->error(),Sc_Log::ERROR);
-            } 
+            }
+            return false;
         }
+        return true;
     }
     
     
@@ -134,7 +137,7 @@ class Sc_Tracker {
             'node' => $params['node']
         );
         $suffix = strrchr($params['name'], '.');
-	$savedata['suffix'] = ($suffix == false ? '' : $suffix);
+        $savedata['suffix'] = ($suffix == false ? '' : $suffix);
         return array('after'=>$savedata);
     }
 
@@ -156,8 +159,10 @@ class Sc_Tracker {
         if(!static::$_driver->add($data)){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
                 Sc_Log::record('[tracker after add] failure,'.var_export($data, true).static::$_driver->error(),Sc_Log::ERROR);
-            } 
+            }
+            return false;
         }
+        return true;
     }
     
     /**
@@ -200,8 +205,10 @@ class Sc_Tracker {
         if(!static::$_driver->delete($data['hash'],$data['node'])){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
                 Sc_Log::record('[tracker after delete] failure,'.var_export($data['add'], true).static::$_driver->error(),Sc_Log::ERROR);
-            } 
+            }
+            return false;
         }
+        return true;
     }    
 
     /**
