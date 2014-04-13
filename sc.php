@@ -100,8 +100,8 @@ class Sc {
     */
    static public function checkIsNameServer(){
         if(static::$_isnameserver === NULL){
-            static::$_isnameserver = strpos(static::$conf['name_server'],$_SERVER['SERVER_ADDR'])!==false
-             || strpos(static::$conf['name_server'],$_SERVER['HTTP_HOST'])!==false; 
+            //根据IP判断
+            static::$_isnameserver = static::$conf['name_server']==$_SERVER['SERVER_ADDR'];
         }
         return static::$_isnameserver;
    } 
