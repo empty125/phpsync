@@ -42,11 +42,11 @@ class Sc_Tracker {
         }
         $nodes = Sc::getConfig('nodes');
         if(empty($nodes)){
-            Sc_Log::record("[tracker search] nodes is empty",  Sc_Log::WARN);
+            Sc_Log::record("[tracker search] nodes is empty",  Sc_Log::ERROR);
             return static::S_NOT_AVAILABLE_NODES;
         }
         if(empty($params['name'])){
-            Sc_Log::record("[tracker search] bad hash parameter {$params['name']}",  Sc_Log::NOTICE);
+            Sc_Log::record("[tracker search] bad hash parameter {$params['name']}",  Sc_Log::ERROR);
             return static::BAD_PARAMETER;
         }
         $hash = Sc::hash($params['name']);
@@ -118,15 +118,15 @@ class Sc_Tracker {
             static::initDriver();
         }        
         if(!Sc::checkHash($params['hash'])){
-            Sc_Log::record("[tracker add] bad hash parameter {$params['hash']}",  Sc_Log::NOTICE);
+            Sc_Log::record("[tracker add] bad hash parameter {$params['hash']}",  Sc_Log::ERROR);
             return static::BAD_PARAMETER;
         }
         if(!Sc::checkHash($params['fhash'])){
-            Sc_Log::record("[tracker add] bad fhash parameter {$params['fhash']}", Sc_Log::NOTICE);
+            Sc_Log::record("[tracker add] bad fhash parameter {$params['fhash']}", Sc_Log::ERROR);
             return static::BAD_PARAMETER;
         }
         if(!empty($params['node']) && !Sc::checkNode($params['node'])){
-            Sc_Log::record("[tracker add] bad node parameter {$params['node']}",  Sc_Log::NOTICE);
+            Sc_Log::record("[tracker add] bad node parameter {$params['node']}",  Sc_Log::ERROR);
             return static::BAD_PARAMETER;
         }else{
             $params['node'] = Sc::getFromNode();
@@ -158,7 +158,7 @@ class Sc_Tracker {
             if(Sc_Log::enableLevel(Sc_Log::WARN)){
                 Sc_Log::record('[tracker after add] exists,'.var_export($data, true),Sc_Log::WARN);
             }
-            return false;
+            return true;
         }
         if(!static::$_driver->add($data)){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
@@ -179,11 +179,11 @@ class Sc_Tracker {
             static::initDriver();
         }
         if(!Sc::checkHash($params['hash'])){
-            Sc_Log::record("[tracker delete] bad hash parameter {$params['hash']}",  Sc_Log::NOTICE);
+            Sc_Log::record("[tracker delete] bad hash parameter {$params['hash']}",  Sc_Log::ERROR);
             return static::BAD_PARAMETER;
         }
         if(!empty($params['node']) && !Sc::checkNode($params['node'])){
-            Sc_Log::record("[tracker delete] bad node parameter {$params['node']}",  Sc_Log::NOTICE);
+            Sc_Log::record("[tracker delete] bad node parameter {$params['node']}",  Sc_Log::ERROR);
             return static::BAD_PARAMETER;
         }elseif($params['node'] == 'ALL'){
             $params['node'] = NULL; 

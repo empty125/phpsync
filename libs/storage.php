@@ -27,7 +27,7 @@ class Sc_Storage {
     }
     
    /**
-    * 下载给其他节点
+    * 下载
     * @param type $params
     * array(
     *   'hashname'
@@ -39,7 +39,7 @@ class Sc_Storage {
         }
         $_info = explode('.', $params['hashname']);
         if(Sc::checkHash($_info[0])){
-            Sc_Log::record("[storage download] bad hash parameter {$params[0]}", Sc_Log::NOTICE);
+            Sc_Log::record("[storage download] bad hash parameter {$params[0]}", Sc_Log::ERROR);
             return static::BAD_PARAMETER;
         }
         $filename = Sc::getFileDir($_info[0]).(isset($_info[1]) ? '.'.$_info[1] : '' );
@@ -64,11 +64,11 @@ class Sc_Storage {
             static::initSync();
         }
         if(empty($params['remote'])){
-            Sc_Log::record("[storage syncFile] bad remote parameter {$params['remote']}", Sc_Log::NOTICE);
+            Sc_Log::record("[storage syncFile] bad remote parameter {$params['remote']}", Sc_Log::ERROR);
             return static::BAD_PARAMETER;
         }
         if(empty($params['hashname'])){
-            Sc_Log::record("[storage syncFile] bad name parameter {$params['hashname']}", Sc_Log::NOTICE);
+            Sc_Log::record("[storage syncFile] bad name parameter {$params['hashname']}", Sc_Log::ERROR);
             return static::BAD_PARAMETER;
         }
         $_info = explode('.', $params['hashname']);
@@ -82,6 +82,58 @@ class Sc_Storage {
              return static::FAILURE;
         }
         return static::SUCCESS;
+    }
+    
+    /**
+     * 添加文件到storage管理
+     * @param type $filename[文件位置/url]
+     * @param type $name,文件名[可选]
+     * @return type
+     */
+    static public function saveFile($filename,$name=''){
+        if(strpos($filename,'http://')!==FALSE && empty($name)){
+            Sc_Log::record("[storage saveFile] open http stream mush have name parameter {$filename}",Sc_Log::WARN);
+            //return static::BAD_PARAMETER;
+        }
+        $source = fopen($filename,'r');
+        if(!$source){
+            Sc_Log::record("[storage saveFile] open failed {$filename}",Sc_Log::ERROR);
+            return static::FAILURE;
+        }
+        $name = empty($name) ? basename($filename) : $name;
+        $hash = Sc::hash($name);
+        $suffix = strrchr($name, '.');
+        $path = static::getAvaiablePath($hash);
+        if(empty($path)){
+            fclose($source);
+            return static::FAILURE;
+        }
+        $savefile = $path.$hash.$suffix;
+        $dist = fopen($savefile,'wb+');
+        if(!$dist){
+            fclose($source);
+            Sc_Log::record("[storage saveFile] open failed {$savefile}",Sc_Log::ERROR);
+            return static::FAILURE;
+        }
+        $length = stream_copy_to_stream($source,$dist);
+        fclose($source);
+        fclose($dist);
+        if(!$length){
+           Sc_Log::record("[storage saveFile] stream copy failed {$source} to {$savefile}",Sc_Log::ERROR);
+           return static::FAILUARE;
+        }
+        return array(
+            'hash'=>$hash,
+            'fhash'=>Sc::hash($dist,true)
+        );
+    }
+    
+    /**
+     * 
+     * @todo 文件上传,保留方法,暂不实现
+     */
+    static public function upload(){
+        
     }
 
     /**
@@ -117,15 +169,5 @@ class Sc_Storage {
             return false;
         }
         return $savedir;
-    }
-    
-    
-    /**
-     * 
-     * @todo 文件上传,保留方法,暂不实现
-     */
-    static public function upload(){
-        
-    }
-    
+    }  
 }

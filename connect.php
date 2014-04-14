@@ -28,3 +28,4 @@ $data = Sc_Tracker::add(array(
 Sc_Tracker::afterAdd($data['after']);
 */
 //检查请求是否来自配置的节点
+echo basename('http://asdadsad.com?app=addad&adc=1243');
