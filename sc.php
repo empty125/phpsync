@@ -136,6 +136,7 @@ class Sc {
        return $isFile ?  md5_file($string): md5($string);
    }
    
+   
    /**
     * 检查节点格式(IP)
     * @todo ipv6

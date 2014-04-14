@@ -107,21 +107,22 @@ class Sc_Tracker {
      * 
      * @param type $params
      * array(
-     *  'name'=>'',
+     *  'hash'=>'',
      *  'fhash'=>'',
-     *  'node'=>''[可选]
+     *  'node'=>'',[可选]
+     *  'suffix'=>''
      * )
      */
     static public function add($params){
         if(static::$_driver == NULL){
             static::initDriver();
         }        
-        if(empty($params['name'])){
-            Sc_Log::record("[tracker add] bad name parameter {$params['name']}",  Sc_Log::NOTICE);
+        if(!Sc::checkHash($params['hash'])){
+            Sc_Log::record("[tracker add] bad hash parameter {$params['hash']}",  Sc_Log::NOTICE);
             return static::BAD_PARAMETER;
         }
         if(!Sc::checkHash($params['fhash'])){
-            Sc_Log::record("[tracker add] bad hash parameter {$params['fhash']}", Sc_Log::NOTICE);
+            Sc_Log::record("[tracker add] bad fhash parameter {$params['fhash']}", Sc_Log::NOTICE);
             return static::BAD_PARAMETER;
         }
         if(!empty($params['node']) && !Sc::checkNode($params['node'])){
@@ -132,12 +133,15 @@ class Sc_Tracker {
         }
         
         $savedata = array(
-            'hash' => Sc::hash($params['name']),
+            'hash' => $params['hash'],
             'fhash'=> $params['fhash'],
             'node' => $params['node']
         );
-        $suffix = strrchr($params['name'], '.');
-        $savedata['suffix'] = ($suffix == false ? '' : $suffix);
+       // $suffix = strrchr($params['name'], '.');
+       // $savedata['suffix'] = ($suffix == false ? '' : $suffix);
+        if(!empty($params['suffix'])){
+            $savedata['suffix'] = $params['suffix'];
+        }
         return array('after'=>$savedata);
     }
 
@@ -174,9 +178,8 @@ class Sc_Tracker {
         if(static::$_driver == NULL){
             static::initDriver();
         }
-        $info = explode('.', $params['name']);
-        if(empty($info[0])){
-            Sc_Log::record("[tracker delete] bad name parameter {$params['name']}",  Sc_Log::NOTICE);
+        if(!Sc::checkHash($params['hash'])){
+            Sc_Log::record("[tracker delete] bad hash parameter {$params['hash']}",  Sc_Log::NOTICE);
             return static::BAD_PARAMETER;
         }
         if(!empty($params['node']) && !Sc::checkNode($params['node'])){
@@ -189,7 +192,7 @@ class Sc_Tracker {
         }
         
         return array('after'=> array(
-            'hash'=>Sc::hash($info[0]),
+            'hash'=>$params['hash'],
             'node'=>$params['node']
         ));
     }

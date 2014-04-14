@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Description of Sc_Client_Warpper
+ * register stream warpper sc://
  *
  * @author xilei
  */

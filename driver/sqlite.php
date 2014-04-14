@@ -25,7 +25,7 @@ class Sc_Sqlite {
     private $_error = NULL;
 
     function __construct(){
-        
+        $this->connect();
     }
     
     /**
@@ -71,9 +71,6 @@ class Sc_Sqlite {
      * @return boolean
      */
     public function add($data){
-        if(!$this->isConnected){
-            $this->connect();
-        }
         $statement = $this->_handle->prepare('INSERT INTO node_files(hash,node,savetime,suffix,fhash)VALUES(:hash,:node,:savetime,:suffix,:fhash)');
         if($statement === false) {
             return false;
@@ -94,9 +91,6 @@ class Sc_Sqlite {
      * @return boolean
      */
     public function get($hash){
-        if(!$this->isConnected){
-            $this->connect();
-        }
         if(empty($hash)){
             $this->_error='hash is required';
             return false;
@@ -123,9 +117,6 @@ class Sc_Sqlite {
      * @return type
      */
     public function getAll(){
-        if(!$this->isConnected){
-            $this->connect();
-        }
         $result = $this->_handle->query('SELECT * FROM node_files');
         $rows = array();
         while($res = $result->fetchArray(SQLITE3_ASSOC)){
@@ -145,9 +136,6 @@ class Sc_Sqlite {
      * @return boolean
      */
     public function delete($hash,$node=NULL){
-        if(!$this->isConnected){
-            $this->connect();
-        }
         if(empty($hash)){
             $this->_error='hash is required';
             return false;
@@ -200,9 +188,6 @@ class Sc_Sqlite {
      * @return boolean
      */
     public function exists($hash,$node){
-        if(!$this->isConnected){
-            $this->connect();
-        }
         if(empty($hash)){
              $this->_error='hash is required';
              return false;

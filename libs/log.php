@@ -38,7 +38,7 @@ class Sc_Log {
         }
         $path = Sc::$rootDir.'/data/log';
         if(!is_dir($path)){
-            @mkdir($path,0777,true);
+            @mkdir($path,0600,true);
         }
         $logfile = $path.'/phpsync'.date('Y-n').'.log';
         error_log(date('Y-n-j H:i:s')."\r\n".implode(static::$_data),3,$logfile);

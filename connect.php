@@ -12,11 +12,11 @@ Sc_Log::$suffix = 'from '.Sc::getFromNode();
 Sc_Log::setLevels(Sc::getConfig('log_level'));
 
 //$route = filter_input(INPUT_GET, 'r');
-$data =Sc_Tracker::search(array(
+/*$data =Sc_Tracker::search(array(
     'name'=>'a.jpg',
     'nnode'=>'127.0.0.1'
 ));
-print_r($data);
+print_r($data);*/
 //Sc_Tracker::afterSearch($data['after']);
 /*
 $data = Sc_Tracker::add(array(
@@ -28,6 +28,3 @@ $data = Sc_Tracker::add(array(
 Sc_Tracker::afterAdd($data['after']);
 */
 //检查请求是否来自配置的节点
-
-
-

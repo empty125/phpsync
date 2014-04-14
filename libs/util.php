@@ -107,24 +107,4 @@ class Sc_Util {
         return $_SERVER['REMOTE_ADDR'];    
    }
     
-    /**
-     * 创建数据目录
-     * @param type $hash
-     * @param type $basePath
-     * @return string|boolean
-     */
-    static public  function mkdataDir($hash,$basePath){
-        if(strlen($hash)<4){
-            return false;
-        }
-        if(!is_dir($basePath) && mkdir($basePath, 0777)){
-            return false;
-        }
-        $filePath = $basePath.'/'.$hash[0];
-        if(!is_dir($filePath) && @mkdir($filePath,0777,true)){
-            return false;
-        }
-        return $filePath;
-    }
-   
 }
