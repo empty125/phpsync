@@ -4,7 +4,7 @@
  */
 return array(
     //指定 nameserver 地址,地址加到nodes中,此节点即使nameserver又是节点
-    'name_server'=>'127.0.0.1',
+    'name_server'=>'127.0.0.1/phpsync',
     
     //所有节点信息 属性: 权重,路径;
     'nodes'=>array(

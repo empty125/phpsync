@@ -6,21 +6,24 @@
  */
 class Sc_Tracker {
     
-    const SUCCESS = 1;
-    const FAILURE =-1;//致命错误
-    
-    const  BAD_PARAMETER = -200;
-    const  S_NOT_AVAILABLE_NODES = -201;  
-    
-    
     static private $_driver = NULL;
     
+    /**
+     * 获取connect可用操作
+     * @return type
+     */
+    static public function supportMethods(){
+        return array('search','add','delete');
+    }
+
+
     /**
      * 初始化文件信息存储方式
      */
     static private function initDriver(){
         $type = Sc::getConfig('save_type');
-        if(!file_exists(__DIR__."/driver/{$type}.php")){
+        if(!file_exists(Sc::$rootDir."/driver/{$type}.php")){
+            Sc_Log::record("[tracker initDriver]not found {$type},default sqlite",  Sc_Log::WARN);
             $type = 'sqlite';
         }
         $class = 'Sc_'.ucfirst($type);
@@ -43,11 +46,11 @@ class Sc_Tracker {
         $nodes = Sc::getConfig('nodes');
         if(empty($nodes)){
             Sc_Log::record("[tracker search] nodes is empty",  Sc_Log::ERROR);
-            return static::S_NOT_AVAILABLE_NODES;
+            return Sc::T_S_NOT_AVAILABLE_NODES;
         }
         if(empty($params['name'])){
             Sc_Log::record("[tracker search] bad hash parameter {$params['name']}",  Sc_Log::ERROR);
-            return static::BAD_PARAMETER;
+            return Sc::T_BAD_PARAMETER;
         }
         $hash = Sc::hash($params['name']);
         $anodes = static::$_driver->get($hash);
@@ -66,7 +69,7 @@ class Sc_Tracker {
         }
         
         if(empty($_rnode)){
-            return static::S_NOT_AVAILABLE_NODES;
+            return Sc::T_S_NOT_AVAILABLE_NODES;
         }
         
         $rdata = $_metadata[static::randomOne($_rnode)];
@@ -119,15 +122,15 @@ class Sc_Tracker {
         }        
         if(!Sc::checkHash($params['hash'])){
             Sc_Log::record("[tracker add] bad hash parameter {$params['hash']}",  Sc_Log::ERROR);
-            return static::BAD_PARAMETER;
+            return Sc::T_BAD_PARAMETER;
         }
         if(!Sc::checkHash($params['fhash'])){
             Sc_Log::record("[tracker add] bad fhash parameter {$params['fhash']}", Sc_Log::ERROR);
-            return static::BAD_PARAMETER;
+            return Sc::T_BAD_PARAMETER;
         }
         if(!empty($params['node']) && !Sc::checkNode($params['node'])){
             Sc_Log::record("[tracker add] bad node parameter {$params['node']}",  Sc_Log::ERROR);
-            return static::BAD_PARAMETER;
+            return Sc::T_BAD_PARAMETER;
         }else{
             $params['node'] = Sc::getFromNode();
         }
@@ -180,11 +183,11 @@ class Sc_Tracker {
         }
         if(!Sc::checkHash($params['hash'])){
             Sc_Log::record("[tracker delete] bad hash parameter {$params['hash']}",  Sc_Log::ERROR);
-            return static::BAD_PARAMETER;
+            return Sc::T_BAD_PARAMETER;
         }
         if(!empty($params['node']) && !Sc::checkNode($params['node'])){
             Sc_Log::record("[tracker delete] bad node parameter {$params['node']}",  Sc_Log::ERROR);
-            return static::BAD_PARAMETER;
+            return Sc::T_BAD_PARAMETER;
         }elseif($params['node'] == 'ALL'){
             $params['node'] = NULL; 
         }else{
@@ -212,7 +215,21 @@ class Sc_Tracker {
             return false;
         }
         return true;
-    }    
+    }
+    
+    /**
+     * 
+     * @param type $method
+     * @param type $data
+     * @return type
+     */
+    static public function callAfter($method,$data){
+        $afterMethod = 'after'.ucfirst($method);
+        if(method_exists(Sc_Tracker,$afterMethod)){
+          return  static::$afterMethod(isset($data['after']) ? $data['after'] : NULL);
+        }
+    }
+
 
     /**
      * 加权随机

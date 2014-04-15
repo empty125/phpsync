@@ -29,3 +29,49 @@ error:[tracker after add] add failure,array (
 )columns hash, node are not unique[from 127.0.0.1]
 2014-4-11 17:38:03
 notice:[tracker delete] bad name parameter [from 127.0.0.1]
+2014-4-15 10:43:22
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+error:[storage getAvaiablePath] directory creation failed /home/xilei/work/phpsync/data/file/9/ [from 127.0.0.1]
+2014-4-15 10:43:24
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+error:[storage getAvaiablePath] directory creation failed /home/xilei/work/phpsync/data/file/9/ [from 127.0.0.1]
+2014-4-15 10:45:53
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+error:[storage getAvaiablePath] directory creation failed /home/xilei/work/phpsync/data/file/9/ [from 127.0.0.1]
+2014-4-15 10:48:35
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+error:[storage getAvaiablePath] directory creation failed /home/xilei/work/phpsync/data/file/9 [from 127.0.0.1]
+2014-4-15 10:49:21
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+error:[storage getAvaiablePath] directory creation failed /home/xilei/work/phpsync/data/file/9 [from 127.0.0.1]
+2014-4-15 10:49:30
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+error:[storage getAvaiablePath] directory creation failed /home/xilei/work/phpsync/data/file/9 [from 127.0.0.1]
+2014-4-15 10:52:29
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+2014-4-15 11:07:02
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+2014-4-15 11:24:10
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+2014-4-15 11:27:16
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+2014-4-15 11:31:58
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+2014-4-15 11:35:18
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+2014-4-15 11:36:25
+warn:[storage saveFile] open http stream mush have name parameter http://www.qq.com[from 127.0.0.1]
+2014-4-15 12:33:41
+error:[storage syncFile] bad hashname parameter 0cc175b9c0f1b6a831c399e269772661[from 127.0.0.1]
+2014-4-15 15:47:34
+error:[storage download] file not exists /home/xilei/work/phpsync/data/file/7/77b5347229cfa704f4c122ec35f5502f.php[from 127.0.0.1]
+2014-4-15 16:07:30
+error:[storage download] file not exists /home/xilei/work/phpsync/data/file/8/8b06645c18917c54c2668085c0f8cf93.jpg[from 127.0.0.1]
+2014-4-15 16:07:34
+error:[storage download] file not exists /home/xilei/work/phpsync/data/file/8/8b06645c18917c54c2668085c0f8cf93.jpg[from 127.0.0.1]
+2014-4-15 16:08:06
+error:[storage download] file not exists /home/xilei/work/phpsync/data/file/8/8b06645c18917c54c2668085c0f8cf93.jpg[from 127.0.0.1]
+2014-4-15 16:09:01
+error:[storage download] file not exists /home/xilei/work/phpsync/data/file/8/8b06645c18917c54c2668085c0f8cf93.jpg[from 127.0.0.1]
+2014-4-15 16:09:56
+error:[storage download] file not exists /home/xilei/work/phpsync/data/file/8/8b06645c18917c54c2668085c0f8cf93.jpg[from 127.0.0.1]

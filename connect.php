@@ -4,28 +4,61 @@
  * 检查节点是否合法
  * 路由tracker和node请求
  * 设置日志级别
+ * 检查请求是否来自配置的节点
  */
+
+define('SC_ISFCGI', strpos(php_sapi_name(),'fcgi')!==FALSE);
 
 require __DIR__.'/sc.php';
 
 Sc_Log::$suffix = 'from '.Sc::getFromNode();
 Sc_Log::setLevels(Sc::getConfig('log_level'));
 
-//$route = filter_input(INPUT_GET, 'r');
-/*$data =Sc_Tracker::search(array(
-    'name'=>'a.jpg',
-    'nnode'=>'127.0.0.1'
-));
-print_r($data);*/
-//Sc_Tracker::afterSearch($data['after']);
-/*
-$data = Sc_Tracker::add(array(
-    'name'=>'a.jpg',
-    'node'=>'192.168.2.1',
-    'fhash'=>Sc::hash('a'))
-);
 
-Sc_Tracker::afterAdd($data['after']);
-*/
-//检查请求是否来自配置的节点
-echo basename('http://asdadsad.com?app=addad&adc=1243');
+//--------------------------------------------------------
+
+$route = filter_input(INPUT_GET, 'r');
+
+list($module,$method) = explode('.', $route);
+if(!isset($method)){
+    Sc_Util::sendHttpStatus(400);exit;
+}
+
+unset($_GET['r']);
+$params = array();
+foreach($_GET as $key=>$value){
+    $params[$key] =  addslashes($value);
+}
+
+switch($module){
+    case 'tracker':
+        if(!in_array($method,Sc_Tracker::supportMethods())){
+            Sc_Util::sendHttpStatus(400);exit;
+        }        
+        $result = call_user_func(array(Sc_Tracker,$method), $params);
+        if(is_array($result)){
+            $_data = array('code'=>  Sc::T_SUCCESS);
+            if(isset($result['data'])){
+                $_data['data'] = $result['data'];
+            }
+            echo Sc::pack($_data);
+            if(SC_ISFCGI){
+                fastcgi_finish_request();
+            }
+            Sc_Tracker::callAfter($method, $result);
+        }else{
+            echo Sc::pack(array('code'=>$result));
+        }
+        break;
+    case 'storage':
+        if(!in_array($method, Sc_Storage::supportMethods())){
+            Sc_Util::sendHttpStatus(400);exit;
+        }
+        //storage
+        $result = call_user_func(array(Sc_Storage,$method), $params);
+        if($result<0){
+            Sc_Util::sendHttpStatus(404);//失败,全部返回404
+        }
+        break;
+    default :Sc_Util::sendHttpStatus(400);
+}

@@ -16,8 +16,10 @@ class Sc_Http {
     public function download($remote,$savename){
         $cp = curl_init($remote);
         $fp = fopen($savename,"wb");
-        curl_setopt($cp, CURLOPT_FILE, $fp);
-        curl_setopt($cp, CURLOPT_HEADER, 0);
+        curl_setopt_array($cp, array(
+            CURLOPT_FILE=>$fp,
+            CURLOPT_HEADER=>0
+        ));
         curl_exec($cp);
         if(curl_errno($cp)){
             $this->_error = curl_error($cp);

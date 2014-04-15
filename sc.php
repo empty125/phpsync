@@ -11,6 +11,22 @@
  */
 class Sc {
    
+   //tracker error code
+    
+   const T_SUCCESS = 1;
+   const T_FAILURE = -1;
+   
+   const T_BAD_PARAMETER = -400;
+   const T_S_NOT_AVAILABLE_NODES = -201;
+   
+   //storage error code
+   
+   const S_SUCCESS = 1;
+   const S_FAILURE = -1;
+   
+   const S_BAD_PARAMETER = -400;
+   const S_FILE_NOT_EXISTS = -404;
+
    /**
     *配置文件缓存
     * @var type 
@@ -50,9 +66,8 @@ class Sc {
 
    
    static public function init(){
-       static::$rootDir = str_replace("\\", '/',  __DIR__);
-       
-       define('SC_ISFCGI', php_sapi_name() == 'cgi-fcgi');
+       static::$rootDir = str_replace("\\", '/',  __DIR__);       
+      
        date_default_timezone_set('Asia/Shanghai');
        spl_autoload_register(array('Sc','autoload')); 
         
@@ -94,6 +109,7 @@ class Sc {
        return static::$_conf[$name];
    }
    
+   
    /**
     * 检查是否是name server
     * @return type
@@ -101,7 +117,7 @@ class Sc {
    static public function checkIsNameServer(){
         if(static::$_isnameserver === NULL){
             //根据IP判断
-            static::$_isnameserver = static::$conf['name_server']==$_SERVER['SERVER_ADDR'];
+            static::$_isnameserver = strpos(static::$conf['name_server'],$_SERVER['SERVER_ADDR']) === 0;
         }
         return static::$_isnameserver;
    } 
