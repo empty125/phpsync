@@ -43,10 +43,6 @@ class Sc {
        'Sc_Log'=>'./libs/log.php',
        'Sc_Client'=>'./libs/client.php',
        'Sc_Util'=>'./libs/util.php',
-       'Sc_File'=>'./driver/file.php',
-       'Sc_Sqlite'=>'./driver/sqlite.php',
-       'Sc_Http'=>'./sync/http.php',
-       'Sc_Cmd'=>'./sync/cmd.php',
        'Sc_Client_Warpper'=>'./libs/client_warpper.php'
    );
    
@@ -117,7 +113,7 @@ class Sc {
    static public function checkIsNameServer(){
         if(static::$_isnameserver === NULL){
             //根据IP判断
-            static::$_isnameserver = strpos(static::$conf['name_server'],$_SERVER['SERVER_ADDR']) === 0;
+            static::$_isnameserver = strpos(static::getConfig('name_server'),$_SERVER['SERVER_ADDR']) === 0;
         }
         return static::$_isnameserver;
    } 

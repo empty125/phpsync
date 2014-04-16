@@ -21,11 +21,15 @@ class Sc_Tracker {
      * 初始化文件信息存储方式
      */
     static private function initDriver(){
+        if(static::$_driver!=NULL){
+            return;
+        }
         $type = Sc::getConfig('save_type');
         if(!file_exists(Sc::$rootDir."/driver/{$type}.php")){
             Sc_Log::record("[tracker initDriver]not found {$type},default sqlite",  Sc_Log::WARN);
             $type = 'sqlite';
         }
+        require Sc::$rootDir."/driver/{$type}.php";
         $class = 'Sc_'.ucfirst($type);
         static::$_driver = new $class();
     }
@@ -175,6 +179,10 @@ class Sc_Tracker {
     /**
      * 删除
      * @param type $params
+     * array(
+     *  'hash'=>'',
+     *  'node'=>''[可选]
+     * )
      * @return type
      */
     static public function delete($params){
@@ -185,18 +193,25 @@ class Sc_Tracker {
             Sc_Log::record("[tracker delete] bad hash parameter {$params['hash']}",  Sc_Log::ERROR);
             return Sc::T_BAD_PARAMETER;
         }
-        if(!empty($params['node']) && !Sc::checkNode($params['node'])){
+        
+        
+        if(isset($params['node']) && !Sc::checkNode($params['node'])){
             Sc_Log::record("[tracker delete] bad node parameter {$params['node']}",  Sc_Log::ERROR);
             return Sc::T_BAD_PARAMETER;
-        }elseif($params['node'] == 'ALL'){
+        }
+        
+        if($params['node'] == 'ALL'){
             $params['node'] = NULL; 
         }else{
-            $params['node'] = Sc::getFromNode();
+            $nodes = array(Sc::getFromNode());
+            if(isset($params['node'])){
+                $nodes[] = $params['node'];
+            }
         }
         
         return array('after'=> array(
             'hash'=>$params['hash'],
-            'node'=>$params['node']
+            'node'=>$nodes
         ));
     }
     
@@ -208,7 +223,12 @@ class Sc_Tracker {
         if(empty($data)){
             return false;
         }
-        if(!static::$_driver->delete($data['hash'],$data['node'])){
+        $deleteData = array();
+        foreach($data['node'] as $v){
+            if(empty($v)) continue;
+            $deleteData[] = array('hash'=>$data['hash'],'node'=>$v); 
+        }
+        if(!static::$_driver->delete($deleteData)){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
                 Sc_Log::record('[tracker after delete] failure,'.var_export($data['add'], true).static::$_driver->error(),Sc_Log::ERROR);
             }

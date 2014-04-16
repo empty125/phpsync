@@ -1,15 +1,9 @@
 <?php
 
-require __DIR__.'/../sc.php';
-
-Sc_Log::$suffix = 'from '.Sc::getFromNode();
-Sc_Log::setLevels(Sc::getConfig('log_level'));
-
-
-Sc_Storage::setMod(0777);
+require __DIR__.'/common.php';
 
 /**
- * syncFile和saveFile 是在不用的用途上,实现方式也是不同的
+ * syncFile和saveFile是在不用的用途上,实现方式也是不同的
  */
 class Test{
     

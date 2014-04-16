@@ -6,7 +6,7 @@
  * 设置日志级别
  * 检查请求是否来自配置的节点
  */
-
+    
 define('SC_ISFCGI', strpos(php_sapi_name(),'fcgi')!==FALSE);
 
 require __DIR__.'/sc.php';
@@ -32,6 +32,10 @@ foreach($_GET as $key=>$value){
 
 switch($module){
     case 'tracker':
+        if(Sc::checkIsNameServer()){
+            Sc_Log::record("[connect] try connect this node,but this not a nameserver",  Sc_Log::ERROR);
+            Sc_Util::sendHttpStatus(403);exit;
+        }
         if(!in_array($method,Sc_Tracker::supportMethods())){
             Sc_Util::sendHttpStatus(400);exit;
         }        

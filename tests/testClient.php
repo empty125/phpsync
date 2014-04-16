@@ -1,0 +1,17 @@
+<?php
+
+require __DIR__.'/common.php';
+
+class Test{
+    
+    static public function testFetch(){
+       var_dump(Sc_Client::fetchFile('img.jpg'));
+    }
+    
+    static public function testSave(){
+       var_dump(Sc_Client::saveFile(__DIR__.'/img.jpg'));
+    }    
+    
+}
+
+Test::testFetch();

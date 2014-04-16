@@ -22,11 +22,15 @@ class Sc_Storage {
      * 初始化同步方式
      */
     static private function initSync(){
+        if(static::$_sync != NULL){
+            return;
+        }
         $type = Sc::getConfig('sync_type');
         if(!file_exists(Sc::$rootDir."/sync/{$type}.php")){
             Sc_Log::record("[storage initSync]not found {$type},default http",  Sc_Log::WARN);
-            $type = 'http';
+            $type = 'http';            
         }
+        require Sc::$rootDir."/sync/{$type}.php";
         $class = 'Sc_'.ucfirst($type);
         static::$_sync = new $class();
     }
@@ -154,7 +158,8 @@ class Sc_Storage {
         if(static::$defaultMod)chmod($savefile, static::$defaultMod);
         return array(
             'hash'=>$hash,
-            'file'=>$savefile
+            'file'=>$savefile,
+            'suffix'=>$suffix
         );
     }
     
