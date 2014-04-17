@@ -100,6 +100,13 @@ class Sc_Tracker {
             } 
             return false;
         }
+        $r = static::$_driver->exists($data['add']['hash'],$data['add']['node']);
+        if($r === -1 && Sc_Log::enableLevel(Sc_Log::WARN)){
+            Sc_Log::record('[tracker after saerch]exists failure,'.var_export($data, true).static::$_driver->error(),Sc_Log::WARN);
+        }elseif($r && Sc_Log::enableLevel(Sc_Log::NOTICE)){
+            Sc_Log::record('[tracker after saerch] exists,'.var_export($data, true),Sc_Log::NOTICE);
+            return true;
+        }
         if(!empty($data['add']) && !static::$_driver->add($data['add'])){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
                 Sc_Log::record('[tracker after search] failure,'.var_export($data['add'], true).static::$_driver->error(),Sc_Log::ERROR);
@@ -161,10 +168,11 @@ class Sc_Tracker {
         if(empty($data)){
             return false;
         }
-        if(static::$_driver->exists($data['hash'],$data['node'])){
-            if(Sc_Log::enableLevel(Sc_Log::WARN)){
-                Sc_Log::record('[tracker after add] exists,'.var_export($data, true),Sc_Log::WARN);
-            }
+        $r = static::$_driver->exists($data['hash'],$data['node']);
+        if($r === -1 && Sc_Log::enableLevel(Sc_Log::WARN)){
+            Sc_Log::record('[tracker after add] exists failure,'.var_export($data, true).static::$_driver->error(),Sc_Log::WARN);
+        }elseif($r && Sc_Log::enableLevel(Sc_Log::NOTICE) ){
+            Sc_Log::record('[tracker after add] exists,'.var_export($data, true),Sc_Log::NOTICE);
             return true;
         }
         if(!static::$_driver->add($data)){
@@ -230,7 +238,7 @@ class Sc_Tracker {
         }
         if(!static::$_driver->delete($deleteData)){
             if(Sc_Log::enableLevel(Sc_Log::ERROR)){
-                Sc_Log::record('[tracker after delete] failure,'.var_export($data['add'], true).static::$_driver->error(),Sc_Log::ERROR);
+                Sc_Log::record('[tracker after delete] failure,'.var_export($deleteData, true).static::$_driver->error(),Sc_Log::ERROR);
             }
             return false;
         }

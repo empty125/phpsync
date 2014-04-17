@@ -18,8 +18,7 @@ class Sc_Client {
         $url = "http://".Sc::getConfig("name_server")."/connect.php?r=tracker.{$method}";
         if(!empty($params)){
            $url.= '&'.http_build_query($params);
-        }
-        echo $url;
+        }       
         return $url;
     }
     
@@ -82,21 +81,28 @@ class Sc_Client {
         if(!isset($result['code']) || $result['code'] != Sc::T_SUCCESS){
             return false;  
         }
+       
         //请求storage 同步文件 @todo 考虑是否检查node为此节点
         $data = $result['data'];
         $hashname = $data['hash'].$data['suffix'];
+        
+        if(Sc_Log::enableLevel(Sc_Log::DEBUG)){
+            Sc_log::record("[client fetchFile] get file from node {$data['node']},hash: {$data['hash']}",  Sc_Log::DEBUG);
+        }
+        
         $result = Sc_Storage::syncFile(static::_storageUrl($data['node'], 'download',array(
             'hashname'=>$hashname
             )
         ), $hashname);
         
         //同步失败
-        if(!isset($result['file'])){  
+        if(isset($result['file'])){  
             $deleteParams = array('hash'=>$data['hash']);
-            if($result == Sc::S_FAILURE){
+            if($result == Sc::S_SYNC_FAILED){
                //删除原来节点的数据
                $deleteParams['node'] = $data['node'];
-            }            
+            }   
+            Sc_Storage::delete($name);
             static::_dotracker('delete',$deleteParams);
             return false;
         }
@@ -155,7 +161,10 @@ class Sc_Client {
      * @return boolean
      */
     static private function _query($remote){  
-        $ch = curl_init($remote);
+        if(Sc_Log::enableLevel(Sc_Log::DEBUG)){
+            Sc_Log::record("[client] query url:{$remote} ",  Sc_Log::DEBUG);
+        }
+        $ch = curl_init($remote);        
         curl_setopt($ch, CURLOPT_HEADER, 0);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
         if(curl_errno($ch)){

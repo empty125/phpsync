@@ -6,14 +6,21 @@
  * 设置日志级别
  * 检查请求是否来自配置的节点
  */
-    
 define('SC_ISFCGI', strpos(php_sapi_name(),'fcgi')!==FALSE);
 
 require __DIR__.'/sc.php';
 
+if(Sc::isCli()){
+    exit("not support in cli\r\n");
+}
 Sc_Log::$suffix = 'from '.Sc::getFromNode();
 Sc_Log::setLevels(Sc::getConfig('log_level'));
 
+
+$nodes = Sc::getConfig('nodes');
+if(!isset($nodes[Sc::getFromNode()])){
+    Sc_Util::sendHttpStatus(403);exit;
+}
 
 //--------------------------------------------------------
 
@@ -64,5 +71,7 @@ switch($module){
             Sc_Util::sendHttpStatus(404);//失败,全部返回404
         }
         break;
-    default :Sc_Util::sendHttpStatus(400);
+    default :
+        Sc_Util::sendHttpStatus(400);
+        break;
 }

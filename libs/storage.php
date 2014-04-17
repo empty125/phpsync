@@ -2,6 +2,7 @@
 /**
  * Description of Sc_Storage
  * 本地文件管理 
+ * @todo 并发文件处理
  * @author xilei
  */
 class Sc_Storage {
@@ -39,7 +40,8 @@ class Sc_Storage {
      * 设置创建文件权限
      * @param type $mod
      */
-    static public function setMod($mod = 0600){
+    static public function setMod($mod){
+        if(!empty($mod)) 
         static::$defaultMod = $mod;
     }
 
@@ -107,7 +109,7 @@ class Sc_Storage {
         $savefile = $path.$hashname;
         if(!static::$_sync->download($remote,$savefile)){
              Sc_Log::record("[storage syncFile] save failed ".static::$_sync->error(), Sc_Log::ERROR);
-             return Sc::S_FAILURE;
+             return Sc::S_SYNC_FAILED;
         }
         if(static::$defaultMod)chmod($savefile, static::$defaultMod);
         return array(
@@ -128,7 +130,7 @@ class Sc_Storage {
             Sc_Log::record("[storage saveFile] open http stream mush have name parameter {$filename}",Sc_Log::WARN);
             //return static::BAD_PARAMETER;
         }
-        $source = fopen($filename,'r');
+        $source = fopen($filename,'rb');
         if(!$source){
             Sc_Log::record("[storage saveFile] open failed {$filename}",Sc_Log::ERROR);
             return Sc::S_FAILURE;
@@ -142,7 +144,7 @@ class Sc_Storage {
             return Sc::S_FAILURE;
         }
         $savefile = $path.$hash.$suffix;
-        $dist = fopen($savefile,'wb+');
+        $dist = fopen($savefile,'wb');
         if(!$dist){
             fclose($source);
             Sc_Log::record("[storage saveFile] open failed {$savefile}",Sc_Log::ERROR);
@@ -206,7 +208,8 @@ class Sc_Storage {
      * @return boolean
      */
     static public function getAvaiablePath($hash,$iscreate=true){
-        $savedir = Sc::$rootDir.'/data/file/'.$hash[0];        
+        if(strlen($hash)<2)return false;
+        $savedir = Sc::$rootDir.'/data/file/'.$hash[0].'/'.$hash[1];        
         if($iscreate && !is_dir($savedir) && !mkdir($savedir,0755,true)){
             Sc_Log::record("[storage getAvaiablePath] directory creation failed {$savedir} ",  Sc_Log::ERROR);
             return false;

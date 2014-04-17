@@ -149,7 +149,7 @@ class Sc_Sqlite {
         }else{
             $condition = isset($hash['hash']) ? array($hash) : $hash;
         }
-        $sql = 'DELETE FROM node_files WHERE';
+        $sql = 'DELETE FROM node_files WHERE ';
         
         $conditionstr = array();
         $i = 0;
@@ -167,6 +167,7 @@ class Sc_Sqlite {
             $conditionstr[] = "(".implode(' AND ', $temp).")";
         }
         $sql.=implode(' OR ', $conditionstr);
+        Sc_Log::record($sql,  Sc_Log::DEBUG);
         unset($con,$condition,$conditionstr);
         
         $statement = $this->_handle->prepare($sql);
@@ -190,21 +191,20 @@ class Sc_Sqlite {
     public function exists($hash,$node){
         if(empty($hash)){
              $this->_error='hash is required';
-             return false;
+             return -1;
         }
         if(empty($node)){
              $this->_error='node is required';
-             return false;
+             return -1;
         }
-        $statement = $this->_handle->prepare('SELECT COUNT(*) AS count,savetime FROM node_files WHERE hash=:hash,node=:node');
+        $statement = $this->_handle->prepare('SELECT COUNT(*) AS count FROM node_files WHERE hash=:hash AND node=:node');
         if($statement === false) {
-            return false;
+            return -1;
         }
         $statement->bindValue(':hash',$hash,SQLITE3_TEXT);
         $statement->bindValue(':node',$node,SQLITE3_TEXT);
         $result = $statement->execute();
         $row = $result->fetchArray(SQLITE3_ASSOC);
-        
         $result->finalize();
         $statement->close();
         return isset($row['count']) && $row['count']>0;
@@ -216,7 +216,7 @@ class Sc_Sqlite {
      */
     public function error(){
         $error = $this->_handle->lastErrorMsg();
-        if(empty($error)){
+        if(!$this->_handle->lastErrorCode()){
             $error = $this->_error;
         }
         return $error;

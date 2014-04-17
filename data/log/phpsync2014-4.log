@@ -1,7 +1,17 @@
-2014-4-16 17:37:37
-error:[tracker after add] failure,array (
-  'hash' => '82341a6c6f03e3af261a95ba81050c0a',
-  'fhash' => '670fb9c5e9d03b1a111fce987163700b',
-  'node' => '127.0.0.1',
-  'suffix' => '.jpg',
-)columns hash, node are not unique[from 127.0.0.1]
+2014-4-17 18:11:45
+debug:[client] query url:http://192.168.1.102/phpsync/connect.php?r=tracker.delete&hash=82341a6c6f03e3af261a95ba81050c0a [from 127.0.0.1]
+2014-4-17 18:11:45
+debug:DELETE FROM node_files WHERE (hash = :param0 AND node = :param1)[from 192.168.1.102]
+2014-4-17 18:15:20
+debug:DELETE FROM node_files WHERE (hash = :param0 AND node = :param1)[from 192.168.1.102]
+error:[tracker after delete] failure,array (
+  0 => 
+  array (
+    'hash' => '82341a6c6f03e3af261a95ba81050c0a',
+    'node' => '192.168.1.102',
+  ),
+)database is locked[from 192.168.1.102]
+2014-4-17 18:15:20
+debug:[client] query url:http://192.168.1.102/phpsync/connect.php?r=tracker.search&name=img.jpg [from 127.0.0.1]
+debug:[client fetchFile] get file from node 192.168.1.114,hash: 82341a6c6f03e3af261a95ba81050c0a[from 127.0.0.1]
+debug:[client] query url:http://192.168.1.102/phpsync/connect.php?r=tracker.delete&hash=82341a6c6f03e3af261a95ba81050c0a [from 127.0.0.1]

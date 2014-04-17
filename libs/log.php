@@ -10,12 +10,13 @@ class Sc_Log {
     const WARN   = 'warn';
     const NOTICE = 'notice';
     const INFO   = 'info';
+    const DEBUG  = 'debug';
     
     static private $_data = array();
     
     static public $suffix = '';
     
-    static public $levels = array('error','warn','notice','info');
+    static public $levels = array('error','warn','notice','info','debug');
     
     /**
      * 记录日志

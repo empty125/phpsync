@@ -96,15 +96,15 @@ class Sc_Util {
             509 => 'Bandwidth Limit Exceeded'
         );
         if(isset($_status[$code])) {
-                header('HTTP/1.1 '.$code.' '.$_status[$code]);
+            header('HTTP/1.1 '.$code.' '.$_status[$code]);
         }
     }
     
     /**
      * @todo 代理
      */
-   static public function get_client_ip() {
-        return $_SERVER['REMOTE_ADDR'];    
+   static public function get_client_ip() {       
+        return isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : '';    
    }
     
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * 简单分布式环境中文件被动同步
+ * 简单分布式环境中文件<b>被动</b>同步
  * https://github.com/empty125/phpsync
  * 
  * 改动,不使用命名空间,使用前缀代替,简化结构;
@@ -27,6 +27,7 @@ class Sc {
    const S_BAD_PARAMETER = -400;
    const S_FILE_NOT_EXISTS = -404;
 
+   const S_SYNC_FAILED = -500;
    /**
     *配置文件缓存
     * @var type 
@@ -34,7 +35,7 @@ class Sc {
    static private $_conf = NULL;
    
    /**
-    * 用于class autoload
+    * core class autoload
     * @var type 
     */
    static private $_classMap=array(
@@ -105,24 +106,43 @@ class Sc {
        return static::$_conf[$name];
    }
    
+   /**
+    * 是否为cli模式
+    * @return type
+    */
+   static public function isCli(){
+      static $_cli = NULL;
+      if($_cli ===NULL){
+         $_cli = php_sapi_name() == 'cli';
+      }
+      return $_cli;
+   }
    
    /**
     * 检查是否是name server
     * @return type
     */
    static public function checkIsNameServer(){
+        if(static::isCli()){
+            return true;//cli模式下
+        }
         if(static::$_isnameserver === NULL){
             //根据IP判断
             static::$_isnameserver = strpos(static::getConfig('name_server'),$_SERVER['SERVER_ADDR']) === 0;
         }
         return static::$_isnameserver;
    } 
-  
-  /**
+
+   /**
    * 
    * @return type
    */
    static public function getFromNode(){
+     if(static::isCli()){
+         //cli 模式下需要手动指定IP[本机]
+         return isset($_SERVER["argv"][1]) ? $_SERVER["argv"][1] : '';
+     }
+     
      if(empty(static::$_client_ip)){
          static::$_client_ip = Sc_Util::get_client_ip();
      }
