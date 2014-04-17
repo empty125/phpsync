@@ -219,13 +219,18 @@ class Sc_Sqlite {
         if(!$this->_handle->lastErrorCode()){
             $error = $this->_error;
         }
+        $this->close();
         return $error;
     }
-
+    
+    public function close(){
+       if(!empty($this->_handle)){
+           $this->_handle->close();
+           unset($this->_handle);
+       }
+    }
 
     public function __destruct(){
-        if(is_resource($this->_handle)){
-            $this->_handle->close();
-        }
+       $this->close();
     }
 }

@@ -43,10 +43,7 @@ class Sc_Tracker {
      *  'add'=>1 //是否搜索后添加[1/0 可选,默认1]
      * )
      */
-    static public function search($params){
-        if(static::$_driver == NULL){
-            static::initDriver();
-        }
+    static public function search($params){        
         $nodes = Sc::getConfig('nodes');
         if(empty($nodes)){
             Sc_Log::record("[tracker search] nodes is empty",  Sc_Log::ERROR);
@@ -57,6 +54,9 @@ class Sc_Tracker {
             return Sc::T_BAD_PARAMETER;
         }
         $hash = Sc::hash($params['name']);
+        if(static::$_driver == NULL){
+            static::initDriver();
+        }
         $anodes = static::$_driver->get($hash);
         $_metadata = array();
         $_rnode = array();
@@ -257,7 +257,13 @@ class Sc_Tracker {
           return  static::$afterMethod(isset($data['after']) ? $data['after'] : NULL);
         }
     }
-
+    
+    static public function destoryDriver(){
+        if(method_exists(static::$_driver,'close')){
+            static::$_driver->close();
+        }
+        static::$_driver=NULL;
+    }
 
     /**
      * 加权随机
