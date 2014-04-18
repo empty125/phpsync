@@ -73,7 +73,6 @@ class Sc_Sqlite {
      * @return boolean
      */
     public function add($data){
-        Sc_Log::record("add start:".  microtime(true),  Sc_Log::DEBUG);
         $statement = $this->_handle->prepare('INSERT INTO node_files(hash,node,savetime,suffix,fhash)VALUES(:hash,:node,:savetime,:suffix,:fhash)');
         if($statement === false) {
             return false;
@@ -85,7 +84,6 @@ class Sc_Sqlite {
         $statement->bindValue(':suffix',empty($data['suffix'])? '' : $this->_handle->escapeString($data['suffix']),SQLITE3_TEXT);
         $result = $statement->execute();
         $statement->close();
-        Sc_Log::record("add end:".microtime(true),  Sc_Log::DEBUG);
         return $result!==false;
     }
     
@@ -180,7 +178,6 @@ class Sc_Sqlite {
         }
         $sql.=implode(' OR ', $conditionstr);
         unset($con,$condition,$conditionstr);
-         Sc_Log::record("delete start:".  microtime(true),  Sc_Log::DEBUG);
         $statement = $this->_handle->prepare($sql);
         if($statement === false) {
             return false;
@@ -191,7 +188,6 @@ class Sc_Sqlite {
        
         $result = $statement->execute();
         $statement->close();
-        Sc_Log::record("delete end:".  microtime(true),  Sc_Log::DEBUG);
         return $result!==false;
     }
     
