@@ -117,13 +117,12 @@ class Sc {
     * @return type
     */
    static public function checkIsNameServer(){
-             
         static $_isnameserver = NULL;
         if($_isnameserver === NULL){
             if(static::isCli()){
                 $_isnameserver = true;
             }else{
-                $_isnameserver = strpos(static::getConfig('name_server'),$_SERVER['SERVER_ADDR']) == 0;
+                $_isnameserver = strpos(static::getConfig('name_server'),$_SERVER['SERVER_ADDR']) === 0;
             }
         }
         return $_isnameserver;
