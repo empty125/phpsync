@@ -18,5 +18,4 @@ class Test{
     
 }
 
-//Test::testDelete();
 Test::testFetch();

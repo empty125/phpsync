@@ -48,12 +48,6 @@ class Sc {
    );
    
    /**
-    *  是否是name server
-    * @var type 
-    */
-   static private $_isnameserver = FALSE;
-   
-   /**
     * client ip
     * @var type 
     */
@@ -123,14 +117,16 @@ class Sc {
     * @return type
     */
    static public function checkIsNameServer(){
-        if(static::isCli()){
-            return true;//cli模式下
+             
+        static $_isnameserver = NULL;
+        if($_isnameserver === NULL){
+            if(static::isCli()){
+                $_isnameserver = true;
+            }else{
+                $_isnameserver = strpos(static::getConfig('name_server'),$_SERVER['SERVER_ADDR']) == 0;
+            }
         }
-        if(static::$_isnameserver === NULL){
-            //根据IP判断
-            static::$_isnameserver = strpos(static::getConfig('name_server'),$_SERVER['SERVER_ADDR']) === 0;
-        }
-        return static::$_isnameserver;
+        return $_isnameserver;
    } 
 
    /**
@@ -178,7 +174,7 @@ class Sc {
    }
    
    /**
-    * 消息格式
+    * 消息格式(这里要求所有的节点都支持msgpack)
     * @param type $data
     * @return type
     */

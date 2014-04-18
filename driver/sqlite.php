@@ -7,6 +7,8 @@
  * fhash,文件hash
  * savetime,记录时间
  * suffix,后缀
+ * 
+ * @todo sqlite并发 database is locked 问题，读写优化
  * @author xilei
  */
 class Sc_Sqlite {
@@ -33,7 +35,7 @@ class Sc_Sqlite {
      */
     public function create(){
         if(!$this->isConnected){
-            $this->connect();
+            $this->connect(SQLITE3_OPEN_READWRITE|SQLITE3_OPEN_CREATE);
         }
         $this->_handle->exec('CREATE TABLE node_files(hash TEXT NOT NULL,node TEXT NOT NULL,'
                 . 'fhash TEXT NOT NULL,savetime INT,suffix TEXT, PRIMARY KEY(hash,node))');
@@ -55,7 +57,7 @@ class Sc_Sqlite {
         $this->_handle = new SQLite3($dbfile,$mode);  
         $this->isConnected=true;
         ////auto_vacuum = 1
-        //$this->_handle->busyTimeout(10);
+        $this->_handle->busyTimeout(3000);//并发问题
     }
     
     /**
@@ -71,6 +73,7 @@ class Sc_Sqlite {
      * @return boolean
      */
     public function add($data){
+        Sc_Log::record("add start:".  microtime(true),  Sc_Log::DEBUG);
         $statement = $this->_handle->prepare('INSERT INTO node_files(hash,node,savetime,suffix,fhash)VALUES(:hash,:node,:savetime,:suffix,:fhash)');
         if($statement === false) {
             return false;
@@ -82,6 +85,7 @@ class Sc_Sqlite {
         $statement->bindValue(':suffix',empty($data['suffix'])? '' : $this->_handle->escapeString($data['suffix']),SQLITE3_TEXT);
         $result = $statement->execute();
         $statement->close();
+        Sc_Log::record("add end:".microtime(true),  Sc_Log::DEBUG);
         return $result!==false;
     }
     
@@ -113,16 +117,24 @@ class Sc_Sqlite {
     }
     
     /**
-     * 获取所有
+     * 获取部分列表
      * @return type
      */
-    public function getAll(){
-        $result = $this->_handle->query('SELECT * FROM node_files');
+    public function getPage($start=0,$limit=10){
+        $statement = $this->_handle->prepare('SELECT * FROM node_files LIMIT :limit OFFSET :start');
+        if($statement === false) {
+            return false;
+        }
+        $statement->bindValue(':start',$start,SQLITE3_INTEGER);
+        $statement->bindValue(':limit',$limit,SQLITE3_INTEGER);
+        $result = $statement->execute();
+        
         $rows = array();
         while($res = $result->fetchArray(SQLITE3_ASSOC)){
             $rows[] = $res;
         }        
         $result->finalize();
+        $statement->close();
         return $rows;
     }
     
@@ -167,9 +179,8 @@ class Sc_Sqlite {
             $conditionstr[] = "(".implode(' AND ', $temp).")";
         }
         $sql.=implode(' OR ', $conditionstr);
-        Sc_Log::record($sql,  Sc_Log::DEBUG);
         unset($con,$condition,$conditionstr);
-        
+         Sc_Log::record("delete start:".  microtime(true),  Sc_Log::DEBUG);
         $statement = $this->_handle->prepare($sql);
         if($statement === false) {
             return false;
@@ -177,8 +188,10 @@ class Sc_Sqlite {
         foreach($bindData as $k=>$v){
             $statement->bindValue($k, $v,SQLITE3_TEXT);//这里只能用bindValue
         }
+       
         $result = $statement->execute();
         $statement->close();
+        Sc_Log::record("delete end:".  microtime(true),  Sc_Log::DEBUG);
         return $result!==false;
     }
     
@@ -226,7 +239,7 @@ class Sc_Sqlite {
     public function close(){
        if(!empty($this->_handle)){
            $this->_handle->close();
-           unset($this->_handle);
+           $this->_handle=NULL;
        }
     }
 

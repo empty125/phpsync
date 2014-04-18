@@ -39,7 +39,7 @@ foreach($_GET as $key=>$value){
 
 switch($module){
     case 'tracker':
-        if(Sc::checkIsNameServer()){
+        if(!Sc::checkIsNameServer()){
             Sc_Log::record("[connect] try connect this node,but this not a nameserver",  Sc_Log::ERROR);
             Sc_Util::sendHttpStatus(403);exit;
         }

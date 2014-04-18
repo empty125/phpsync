@@ -47,8 +47,10 @@ class Sc_Client {
         $result = array();
         if(Sc::checkIsNameServer()){
             $_data = call_user_func(array(Sc_Tracker,$method),$params);
-            if(is_array($result)){
-               Sc_Tracker::callAfter($method, $result);
+            if(is_array($_data)){
+                Sc_Tracker::callAfter($method, $_data);
+            }else{
+                return array('code'=>$_data);
             }
             $result = array('code'=>  Sc::T_SUCCESS);
             if(isset($_data['data'])){
@@ -78,7 +80,7 @@ class Sc_Client {
         
         //请求tracker
         $result = static::_dotracker('search',array('name'=>$name));
-        if(!isset($result['code']) || $result['code'] != Sc::T_SUCCESS){
+        if(!isset($result['code'])|| empty($result['data']) || $result['code'] != Sc::T_SUCCESS){
             return false;  
         }
        
@@ -94,9 +96,8 @@ class Sc_Client {
             'hashname'=>$hashname
             )
         ), $hashname);
-        
         //同步失败
-        if(isset($result['file'])){  
+        if(!isset($result['file'])){  
             $deleteParams = array('hash'=>$data['hash']);
             if($result == Sc::S_SYNC_FAILED){
                //删除原来节点的数据
@@ -106,7 +107,7 @@ class Sc_Client {
             static::_dotracker('delete',$deleteParams);
             return false;
         }
-        
+       
         //检查fhash
         if(Sc::hash($result['file'],true) !=$data['fhash']){
             Sc_Storage::delete($name);
@@ -164,13 +165,21 @@ class Sc_Client {
         if(Sc_Log::enableLevel(Sc_Log::DEBUG)){
             Sc_Log::record("[client] query url:{$remote} ",  Sc_Log::DEBUG);
         }
-        $ch = curl_init($remote);        
-        curl_setopt($ch, CURLOPT_HEADER, 0);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        $ch = curl_init($remote);
+        curl_setopt_array($ch, array(
+            CURLOPT_HEADER=>0,
+            CURLOPT_RETURNTRANSFER=>1,
+            CURLOPT_TIMEOUT=>3
+        ));
         if(curl_errno($ch)){
+            Sc_Log::record("[client query] failure,".curl_error($ch),  Sc_Log::ERROR);
             return false;
         }
         $content = curl_exec($ch);
+        if(empty($content)){
+            $info = curl_getinfo($ch);
+            Sc_Log::record("[client query]remote server {$info['url']} response code {$info['http_code']}",  Sc_Log::NOTICE);
+        }
         curl_close($ch);
         return $content;
     }
