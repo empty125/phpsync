@@ -176,7 +176,7 @@ class Sc_Client {
             return false;
         }
         $content = curl_exec($ch);
-        if(empty($content)){
+        if(empty($content) && Sc_Log::enableLevel(Sc_Log::NOTICE)){
             $info = curl_getinfo($ch);
             Sc_Log::record("[client query]remote server {$info['url']} response code {$info['http_code']}",  Sc_Log::NOTICE);
         }
