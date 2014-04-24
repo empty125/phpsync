@@ -67,7 +67,7 @@ class Sc_Storage {
             return Sc::S_FILE_NOT_EXISTS;
         }
         
-        if(!static::$_sync->sendFile($filename)){
+        if(!static::$_sync->sendFile($filename,Sc::getFromNode())){
             Sc_Log::record('[storage download] failure '.static::$_sync->error(),  Sc_Log::ERROR);
             return Sc::S_FAILURE;
         }        
@@ -209,7 +209,7 @@ class Sc_Storage {
      */
     static public function getAvaiablePath($hash,$iscreate=true){
         if(strlen($hash)<2)return false;
-        $savedir = Sc::$rootDir.'/data/file/'.$hash[0].'/'.$hash[1];        
+        $savedir = Sc::getStoragePath($hash);        
         if($iscreate && !is_dir($savedir) && !mkdir($savedir,0755,true)){
             Sc_Log::record("[storage getAvaiablePath] directory creation failed {$savedir} ",  Sc_Log::ERROR);
             return false;

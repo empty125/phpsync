@@ -35,7 +35,7 @@ class Sc_Http {
      * @param type $filename
      * @return boolean
      */
-    public function sendFile($filename){
+    public function sendFile($filename,$node){
         Sc_Util::setDownloadHeader(basename($filename),filesize($filename));
         ob_clean();
         flush();

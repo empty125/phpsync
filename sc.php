@@ -144,7 +144,16 @@ class Sc {
      return static::$_client_ip;
    }
    
+   
    /**
+    * 获取文件存储路径
+    * @return type
+    */
+   static public function getStoragePath($hash){
+       return static::$rootDir."/data/storage/{$hash[0]}/{$hash[1]}";
+   }
+
+      /**
     * 
     * @param type $hash
     * @return type
@@ -195,6 +204,7 @@ class Sc {
        }
        return unserialize($str);
    }
+   
 }
 
 Sc::init();
