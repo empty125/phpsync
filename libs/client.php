@@ -6,40 +6,6 @@
  */
 class Sc_Client {
     
-    static private $_nodes = NULL;
-    
-    /**
-     * build tracker 请求url
-     * @param type $method
-     * @param type $params
-     * @return string
-     */
-    static private function _trackerUrl($method,$params=NULL){
-        $url = "http://".Sc::getConfig("name_server")."/connect.php?r=tracker.{$method}";
-        if(!empty($params)){
-           $url.= '&'.http_build_query($params);
-        }       
-        return $url;
-    }
-    
-    /**
-     * build storage 请求url
-     * @param type $node
-     * @param type $method
-     * @param type $params
-     * @return string
-     */
-    static private function _storageUrl($node,$method,$params=NULL){
-        if(static::$_nodes == NULL){
-            static::$_nodes = Sc::getConfig('nodes');
-        }
-        $url = "http://".$node.(isset(static::$_nodes[$node]['path']) ? "/".static::$_nodes[$node]['path']: "")."/connect.php?r=storage.{$method}";
-        if(!empty($params)){
-           $url.='&'.http_build_query($params);
-        }
-        return $url;
-    }
-    
     /**
      * 查询tracker
      */
@@ -57,7 +23,7 @@ class Sc_Client {
                 $result['data'] = $_data['data'];
             }
         }else{
-            $result  =Sc::unpack(static::_query(static::_trackerUrl($method,$params)));
+            $result  =Sc::unpack(Sc_Util::http(Sc::buildUrl('tracker',$method,$params)));
         }
         return $result;        
     }
@@ -92,10 +58,7 @@ class Sc_Client {
             Sc_log::record("[client fetchFile] get file from node {$data['node']},hash: {$data['hash']}",  Sc_Log::DEBUG);
         }
         
-        $result = Sc_Storage::syncFile(static::_storageUrl($data['node'], 'download',array(
-            'hashname'=>$hashname
-            )
-        ), $hashname);
+        $result = Sc_Storage::syncFile($data['node'], $hashname);
         //同步失败
         if(!isset($result['file'])){  
             $deleteParams = array('hash'=>$data['hash']);
@@ -156,32 +119,4 @@ class Sc_Client {
         return true;
     }
 
-    /**
-     * http
-     * @param type $remote
-     * @return boolean
-     */
-    static private function _query($remote){  
-        if(Sc_Log::enableLevel(Sc_Log::DEBUG)){
-            Sc_Log::record("[client] query url:{$remote} ",  Sc_Log::DEBUG);
-        }
-        $ch = curl_init($remote);
-        curl_setopt_array($ch, array(
-            CURLOPT_HEADER=>0,
-            CURLOPT_RETURNTRANSFER=>1,
-            CURLOPT_TIMEOUT=>3
-        ));
-        if(curl_errno($ch)){
-            Sc_Log::record("[client query] failure,".curl_error($ch),  Sc_Log::ERROR);
-            return false;
-        }
-        $content = curl_exec($ch);
-        if(empty($content) && Sc_Log::enableLevel(Sc_Log::NOTICE)){
-            $info = curl_getinfo($ch);
-            Sc_Log::record("[client query]remote server {$info['url']} response code {$info['http_code']}",  Sc_Log::NOTICE);
-        }
-        curl_close($ch);
-        return $content;
-    }
-    
 }

@@ -1,20 +1,25 @@
 <?php
 /**
- * Description of Sc_Http
+ * Description of Sc_Sync_Http
  * @author xilei
  */
-class Sc_Http {
+class Sc_Sync_Http {
     
     private $_error = '';
     
+    /**
+     * 将被Sc_Stroage添加
+     * @var type 
+     */
+    public  $remote = '';
     /**
      * 获取文件
      * @param type $remote
      * @param type $savename
      * @return boolean
      */
-    public function download($remote,$savename){
-        $cp = curl_init($remote);
+    public function download($node,$savename){
+        $cp = curl_init($this->remote);
         $fp = fopen($savename,"wb");
         curl_setopt_array($cp, array(
             CURLOPT_FILE=>$fp,

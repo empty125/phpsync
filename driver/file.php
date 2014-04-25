@@ -4,7 +4,7 @@
  *
  * @author xilei
  */
-class Sc_File {
+class Sc_Driver_File {
     //put your code here
     
     function __construct(){

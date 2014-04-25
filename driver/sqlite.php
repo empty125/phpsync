@@ -1,6 +1,6 @@
 <?php
 /**
- * Description of Sc_Sqlite
+ * Description of Sc_Driver_Sqlite
  * 字段
  * hash,文件名(包括后缀)hash
  * node,节点
@@ -11,7 +11,7 @@
  * @todo sqlite并发 database is locked 问题，读写优化
  * @author xilei
  */
-class Sc_Sqlite {
+class Sc_Driver_Sqlite {
     /**
      * 标记是否连接初始化
      * @var type 

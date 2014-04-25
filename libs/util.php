@@ -106,5 +106,39 @@ class Sc_Util {
    static public function get_client_ip() {       
         return isset($_SERVER["REMOTE_ADDR"]) ? $_SERVER["REMOTE_ADDR"] : '';    
    }
+   
+   
+   /**
+    * http 
+    * @param type $remote
+    * @param type $PostParams post参数
+    * @return boolean
+    */
+   static public function http($remote,$PostParams=array()){
+        if(Sc_Log::enableLevel(Sc_Log::DEBUG)){
+            Sc_Log::record("[http] query url:{$remote} ",  Sc_Log::DEBUG);
+        }
+        $ch = curl_init($remote);
+        curl_setopt_array($ch, array(
+            CURLOPT_HEADER=>0,
+            CURLOPT_RETURNTRANSFER=>1,
+            CURLOPT_TIMEOUT=>3
+        ));
+        if(!empty($PostParams)){
+            curl_setopt($ch, CURLOPT_POST, 1);
+            curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($PostParams));
+        }
+        if(curl_errno($ch)){
+            Sc_Log::record("[http] failure,".curl_error($ch),  Sc_Log::ERROR);
+            return false;
+        }
+        $content = curl_exec($ch);
+        if(empty($content) && Sc_Log::enableLevel(Sc_Log::NOTICE)){
+            $info = curl_getinfo($ch);
+            Sc_Log::record("[http]remote server {$info['url']} response code {$info['http_code']}",  Sc_Log::NOTICE);
+        }
+        curl_close($ch);
+        return $content;
+   }
     
 }

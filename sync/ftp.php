@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Description of ftp
+ * Description of Sc_Sync_Ftp
  *
  * @author xilei
  */
-class Sc_Ftp {
+class Sc_Sync_Ftp {
     
     private $_error = '';
     

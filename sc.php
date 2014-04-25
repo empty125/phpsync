@@ -152,8 +152,37 @@ class Sc {
    static public function getStoragePath($hash){
        return static::$rootDir."/data/storage/{$hash[0]}/{$hash[1]}";
    }
+   
+   /**
+    * 创建请求url
+    * @param type $module
+    * @param type $method
+    * @param type $params
+    * @return string
+    */
+   static public function buildUrl($module,$method,$params=array()){
+       $url ="";
+       switch($module){
+           case 'tracker':
+               $url = "http://".static::getConfig("name_server")."/connect.php?r=tracker.{$method}";
+               if(!empty($params)){
+                   $url.= '&'.http_build_query($params);
+               }       
+               break;
+           case 'storage':
+               $_nodes = Sc::getConfig('nodes');
+               $node = $params['node'];
+               unset($params['node']);
+               $url = "http://".$node.(isset($_nodes[$node]['path']) ? "/".$_nodes[$node]['path']: "")."/connect.php?r=storage.{$method}";
+               if(!empty($params)){
+                   $url.='&'.http_build_query($params);
+               }
+               break;
+       }
+       return $url;
+   }
 
-      /**
+   /**
     * 
     * @param type $hash
     * @return type

@@ -32,7 +32,7 @@ class Sc_Storage {
             $type = 'http';            
         }
         require Sc::$rootDir."/sync/{$type}.php";
-        $class = 'Sc_'.ucfirst($type);
+        $class = 'Sc_Sync_'.ucfirst($type);
         static::$_sync = new $class();
     }
     
@@ -88,12 +88,12 @@ class Sc_Storage {
      * @param type $params
      * @return type
      */
-    static public function syncFile($remote,$hashname){
+    static public function syncFile($node,$hashname){
         if(static::$_sync == NULL){
             static::initSync();
         }
-        if(empty($remote)){
-            Sc_Log::record("[storage syncFile] bad remote parameter {$remote}", Sc_Log::ERROR);
+        if(Sc::checkNode($node)){
+            Sc_Log::record("[storage syncFile] bad node parameter {$node}", Sc_Log::ERROR);
             return Sc::S_BAD_PARAMETER;
         }
         $_info = explode('.',$hashname);
@@ -106,8 +106,15 @@ class Sc_Storage {
         if(empty($path)){
             return Sc::S_FAILURE;
         }
+        
+        if(property_exists(static::$_sync, 'remote')){
+            static::$_sync->remote = Sc::buildUrl('storage', 'download',array(
+                'hashname'=>$hashname
+            ));
+        }
+        
         $savefile = $path.$hashname;
-        if(!static::$_sync->download($remote,$savefile)){
+        if(!static::$_sync->download($node,$savefile)){
              Sc_Log::record("[storage syncFile] save failed ".static::$_sync->error(), Sc_Log::ERROR);
              return Sc::S_SYNC_FAILED;
         }

@@ -30,7 +30,7 @@ class Sc_Tracker {
             $type = 'sqlite';
         }
         require Sc::$rootDir."/driver/{$type}.php";
-        $class = 'Sc_'.ucfirst($type);
+        $class = 'Sc_Driver_'.ucfirst($type);
         static::$_driver = new $class();
     }
     
