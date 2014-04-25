@@ -207,7 +207,8 @@ class Sc {
     * @todo ipv6
     */
    static public function checkNode($node){
-       return !empty($node) && count($_node = explode('.', $node))==4 && max($_node)<=255;
+       return !empty($node) && count($_node = explode('.', $node))==4 
+              && is_numeric($max = max($_node)) && $max<255 && $max>0;
    }
    
    /**
