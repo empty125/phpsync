@@ -8,10 +8,18 @@ class Sc_Sync_Http {
     private $_error = '';
     
     /**
-     * 将被Sc_Stroage添加
+     * set by Sc_Stroage
      * @var type 
      */
     public  $remote = '';
+    
+    /**
+     * call by Sc_Stroage
+     * @param type $config
+     */
+    public function config($config){
+        
+    }
     /**
      * 获取文件
      * @param type $remote

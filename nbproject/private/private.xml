@@ -2,16 +2,6 @@
 <project-private xmlns="http://www.netbeans.org/ns/project-private/1">
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
-        <group>
-            <file>file:/home/xilei/work/phpsync/driver/sqlite.php</file>
-            <file>file:/home/xilei/work/phpsync/sync/http.php</file>
-            <file>file:/home/xilei/work/phpsync/libs/storage.php</file>
-            <file>file:/home/xilei/work/phpsync/config.php</file>
-            <file>file:/home/xilei/work/phpsync/libs/util.php</file>
-            <file>file:/home/xilei/work/phpsync/sync/ftp.php</file>
-            <file>file:/home/xilei/work/phpsync/sc.php</file>
-            <file>file:/home/xilei/work/phpsync/libs/client.php</file>
-            <file>file:/home/xilei/work/phpsync/sync/rsync.php</file>
-        </group>
+        <group/>
     </open-files>
 </project-private>

@@ -113,6 +113,7 @@ class Sc_Tracker {
             }
             return false;
         }
+        static::destoryDriver();
         return true;
     }
     
@@ -181,6 +182,7 @@ class Sc_Tracker {
             }
             return false;
         }
+        static::destoryDriver();
         return true;
     }
     
@@ -242,6 +244,7 @@ class Sc_Tracker {
             }
             return false;
         }
+        static::destoryDriver();
         return true;
     }
     
@@ -258,6 +261,9 @@ class Sc_Tracker {
         }
     }
     
+    /**
+     * 销毁driver
+     */
     static public function destoryDriver(){
         if(method_exists(static::$_driver,'close')){
             static::$_driver->close();

@@ -19,6 +19,10 @@ return array(
     'sync_type'=>'http',
     
     //日志级别 error,warn,notice,info,debug
-    'log_level'=>'all'
+    'log_level'=>'all',
+    
+    'sync_config'=>array(
+        
+    )
 );
 

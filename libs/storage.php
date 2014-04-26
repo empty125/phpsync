@@ -34,6 +34,8 @@ class Sc_Storage {
         require Sc::$rootDir."/sync/{$type}.php";
         $class = 'Sc_Sync_'.ucfirst($type);
         static::$_sync = new $class();
+        $config = Sc::getConfig('sync_config');
+        !empty($config) and static::$_sync->config($config);
     }
     
     /**
