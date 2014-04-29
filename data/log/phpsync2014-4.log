@@ -5,3 +5,5 @@ debug:delete end:1397812822.0168[from 192.168.1.102]
 debug:add start:1397812832.588[from 192.168.1.102]
 debug:add end:1397812832.6866[from 192.168.1.102]
 debug:[client fetchFile] get file from node 192.168.1.114,hash: 82341a6c6f03e3af261a95ba81050c0a[from 192.168.1.102]
+2014-4-29 13:24:55
+error:[driver file] dir creation failed /home/xilei/work/phpsync/data/.tracker_record[from 127.0.0.1]

@@ -188,7 +188,7 @@ class Sc {
     * @return type
     */
    static public function checkHash($hash){
-       return !empty($hash) && strlen($hash)==32;
+       return !empty($hash) && preg_match('/^\w{32}$/', $hash);
    }
    
    /**

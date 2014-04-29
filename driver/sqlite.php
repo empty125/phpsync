@@ -73,6 +73,13 @@ class Sc_Driver_Sqlite {
      * @return boolean
      */
     public function add($data){
+        $required = array('hash','node','fhash');
+        foreach($required as $key){
+            if(empty($data[$key])){
+                $this->_error = "{$key} is required";
+                return false;
+            }
+        }
         $statement = $this->_handle->prepare('INSERT INTO node_files(hash,node,savetime,suffix,fhash)VALUES(:hash,:node,:savetime,:suffix,:fhash)');
         if($statement === false) {
             return false;
