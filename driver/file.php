@@ -188,10 +188,6 @@ class Sc_Driver_File {
     private function _writeData($filename,$persistence){        
         $savedata = "<?php return !defined('SC_DRIVER_FILE_KEY') ?  false : ". var_export($persistence,true).";";
         $f = fopen($filename, 'wb+');
-        if(!flock($f, LOCK_SH)){//LOCK_NB
-            $this->_error = "lock file {$filename} failed";
-            return false;
-        }
         if($f){
             if(!flock($f, LOCK_SH)){//LOCK_NB
                 $this->_error = "lock file {$filename} failed";
