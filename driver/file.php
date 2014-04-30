@@ -128,7 +128,7 @@ class Sc_Driver_File {
         }
         $persistence =$this->_readData($hash);
         if($persistence === false){
-            return false;
+            return -1;
         }
         $key = $hash.self::DELIMITER.$node;
         return isset($persistence[$key]);
@@ -172,7 +172,7 @@ class Sc_Driver_File {
         }
         $savedir = $this->_basePath."/{$hash[0]}/{$hash[1]}";        
         if($iscreate && !is_dir($savedir) && !mkdir($savedir,0755,true)){
-            $this->_error = "[driver file] directory creation failed {$savedir} ";
+            $this->_error = "directory creation failed {$savedir} ";
             return false;
         }
         return $savedir.'/';
@@ -186,7 +186,8 @@ class Sc_Driver_File {
      * @return boolean
      */
     private function _writeData($filename,$persistence){        
-        $savedata = "<?php return !defined('SC_DRIVER_FILE_KEY') ?  false : ". var_export($persistence,true).";";
+        $savedata = "<?php return !defined('SC_DRIVER_FILE_KEY') ?  false : "
+        . str_replace(array("\n","\t")," ",var_export($persistence,true)).";";
         $f = fopen($filename, 'wb+');
         if($f){
             if(!flock($f, LOCK_SH)){//LOCK_NB
