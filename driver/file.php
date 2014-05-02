@@ -5,24 +5,21 @@
  * @todo 单文件hashtable
  * @author xilei
  */
-define('SC_DRIVER_FILE_KEY', 1);
+define('SC_DRIVER_FILE_PATH', Sc::$rootDir.'/data/tracker_record');
 
 class Sc_Driver_File {
     
     //key delimiter
     const DELIMITER = '_';
 
-    private $_basePath = '';
-    
     private $_error = '';
     
     public function __construct(){
-        $basePath = Sc::$rootDir.'/data/tracker_record';
+        $basePath = SC_DRIVER_FILE_PATH;
         if(!is_dir($basePath) && !@mkdir($basePath,0755,true)){
             Sc_Log::record("[driver file] dir creation failed {$basePath}",  Sc_Log::ERROR);
             throw new Exception('dir creation failed', -100);
-        }
-        $this->_basePath = $basePath;
+        }       
     }
     
     public function add($data){
@@ -170,7 +167,7 @@ class Sc_Driver_File {
             $this->_error = "hash too short {$hash}";
             return false;
         }
-        $savedir = $this->_basePath."/{$hash[0]}/{$hash[1]}";        
+        $savedir = SC_DRIVER_FILE_PATH."/{$hash[0]}/{$hash[1]}";        
         if($iscreate && !is_dir($savedir) && !mkdir($savedir,0755,true)){
             $this->_error = "directory creation failed {$savedir} ";
             return false;
@@ -186,7 +183,7 @@ class Sc_Driver_File {
      * @return boolean
      */
     private function _writeData($filename,$persistence){        
-        $savedata = "<?php return !defined('SC_DRIVER_FILE_KEY') ?  false : "
+        $savedata = "<?php return !defined('SC_DRIVER_FILE_PATH') ?  false : "
         . str_replace(array("\n","\t")," ",var_export($persistence,true)).";";
         $f = fopen($filename, 'wb+');
         if($f){
