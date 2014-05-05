@@ -146,7 +146,7 @@ class Sc_Driver_Sqlite {
         $statement->bindValue(':start',$start,SQLITE3_INTEGER);
         $statement->bindValue(':limit',$limit,SQLITE3_INTEGER);
         foreach ($params as $k=>$v){
-            $statement->bindValue(":{$k}", $v);
+            $statement->bindValue(":{$k}", $v,SQLITE3_TEXT);
         }
         $result = $statement->execute();
         
