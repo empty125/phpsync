@@ -5,7 +5,12 @@
         <group>
             <file>file:/home/xilei/work/phpsync/driver/sqlite.php</file>
             <file>file:/home/xilei/work/phpsync/driver/file.php</file>
+            <file>file:/home/xilei/work/phpsync/driver/fileht.php</file>
             <file>file:/home/xilei/work/phpsync/libs/storage.php</file>
+            <file>file:/home/xilei/work/phpsync/libs/tracker.php</file>
+            <file>file:/home/xilei/work/phpsync/config.php</file>
+            <file>file:/home/xilei/work/phpsync/tests/test.php</file>
+            <file>file:/home/xilei/work/phpsync/sc.php</file>
         </group>
     </open-files>
 </project-private>

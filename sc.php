@@ -173,7 +173,8 @@ class Sc {
                $_nodes = Sc::getConfig('nodes');
                $node = $params['node'];
                unset($params['node']);
-               $url = "http://".$node.(isset($_nodes[$node]['path']) ? "/".$_nodes[$node]['path']: "")."/connect.php?r=storage.{$method}";
+               $url = "http://".$node.(isset($_nodes[$node]['path']) ? "/".$_nodes[$node]['path']: "")
+                   ."/connect.php?r=storage.{$method}";
                if(!empty($params)){
                    $url.='&'.http_build_query($params);
                }

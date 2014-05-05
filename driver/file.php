@@ -1,12 +1,13 @@
 <?php
+define('SC_DRIVER_FILE_PATH', Sc::$rootDir.'/data/tracker_record');
+
 /**
  * 简单文件存储信息
+ * base on filesystem
  * 依靠文件系统,每个文件信息一个文件,可能会导致小文件太多,但可以减少锁问题
  * @todo 单文件hashtable
  * @author xilei
  */
-define('SC_DRIVER_FILE_PATH', Sc::$rootDir.'/data/tracker_record');
-
 class Sc_Driver_File {
     
     //key delimiter
@@ -19,9 +20,13 @@ class Sc_Driver_File {
         if(!is_dir($basePath) && !@mkdir($basePath,0755,true)){
             Sc_Log::record("[driver file] dir creation failed {$basePath}",  Sc_Log::ERROR);
             throw new Exception('dir creation failed', -100);
-        }       
+        }  
     }
-    
+    /**
+     * 
+     * @param type $data
+     * @return boolean
+     */
     public function add($data){
         $required = array('hash','node','fhash');
         foreach($required as $key){
@@ -32,7 +37,6 @@ class Sc_Driver_File {
         }
         $filename = '';
         $persistence = $this->_readData($data['hash'],$filename);
-        //var_dump($persistence);exit;
         if($persistence === false){
             return false;
         }
@@ -47,7 +51,11 @@ class Sc_Driver_File {
         $persistence[$key] = $data; 
         return $this->_writeData($filename, $persistence);
     }
-    
+    /**
+     * 
+     * @param type $hash
+     * @return boolean
+     */
     public function get($hash){
         if(empty($hash)){
             $this->_error = "$hash is required";
@@ -66,19 +74,33 @@ class Sc_Driver_File {
         return $data;    
     }
     
-    public function getPage($start=0,$limit=10){
-        
+    /**
+     * @param type $params
+     * @param type $start
+     * @param type $limit
+     */
+    public function getPage($params=array(),$start=0,$limit=10){
+        $this->_error = "getPage is not supported yet";
+        return false;
     }
     
+    /**
+     * 
+     * @param type $hash
+     * @param type $node
+     * @return int|boolean
+     */
     public function delete($hash,$node=NULL){
        if(empty($hash)){
             $this->_error='hash is required';
             return false;
        }
        
+       $_hash = array();
        $condition = array();
        if(is_string($hash)){           
             $condition[empty($node) ? $hash : $hash.self::DELIMITER.$node] = 1;
+            $_hash[$hash] = 1;
        }elseif(is_array($hash)){
           $hasharr = isset($hash['hash']) ? array($hash) : $hash;
           foreach($hasharr as $item){
@@ -86,6 +108,7 @@ class Sc_Driver_File {
                  continue;
               }
             $condition[empty($item['node']) ? $item['hash'] : $item['hash'].self::DELIMITER.$item['node']] =1;
+            $_hash[$item['hash']] = 1;
           }
        }else{
            $this->_error = "hash must be array|string";
@@ -93,27 +116,40 @@ class Sc_Driver_File {
        }
        unset($hash);
        
-       $filename = '';
-       $persistence = $this->_readData($hash, $filename);
-       if($persistence === false){
-           return false;
+       $dcount = 0;
+       foreach($_hash as $hkey => $kvalue){
+            $filename = '';
+            $persistence = $this->_readData($hkey, $filename);
+            if($persistence === false){
+                continue;
+            }
+            if(empty($persistence)){
+                continue;
+            }
+            
+            $delnum = 0;
+            $newPersistence = array();
+            foreach ($persistence as $key =>$item){
+                if(!isset($condition[$item['hash']]) && !isset($condition[$key])){
+                    $newPersistence[$key] = $item;
+                }else{
+                    $delnum++;
+                }
+            }           
+            if(!$this->_writeData($filename, $newPersistence)){
+                continue;
+            }
+            $dcount+=$delnum;
        }
-       if(empty($persistence)){
-           return true;
-       }
-      
-       $newPersistence = array();
-       foreach ($persistence as $key =>$item){
-           if(!isset($condition[$item['hash']]) && !isset($condition[$key])){
-               $newPersistence[$key] = $item;
-           }
-       }
-       if(empty($newPersistence)){
-          return @unlink($filename);
-       }
-       return $this->_writeData($filename, $newPersistence);
+       return $dcount;
     }
     
+    /**
+     * 
+     * @param type $hash
+     * @param type $node
+     * @return type
+     */
     public function exists($hash,$node){
         if(empty($hash)){
              $this->_error='hash is required';
@@ -143,15 +179,13 @@ class Sc_Driver_File {
             return false;
         }   
         $_filename = $path.$hash.'.php';
-
+        if(isset($filename)) $filename = $_filename;
+        
         $data = array();
         if(file_exists($_filename)){
             $data = require($_filename);
         }else{
             return array();
-        }
-        if(isset($filename)){
-            $filename = $_filename;
         }
         return $data;
     }
@@ -182,30 +216,37 @@ class Sc_Driver_File {
      * @param type $persistence
      * @return boolean
      */
-    private function _writeData($filename,$persistence){        
+    private function _writeData($filename,$persistence){
+        if(empty($persistence)) {
+            return @unlink($filename);
+        }
         $savedata = "<?php return !defined('SC_DRIVER_FILE_PATH') ?  false : "
-        . str_replace(array("\n","\t")," ",var_export($persistence,true)).";";
-        $f = fopen($filename, 'wb+');
+        . str_replace(array("\n","\t"," "),"",var_export($persistence,true)).";?>";
+        $f = fopen($filename, 'w+');
         if($f){
-            if(!flock($f, LOCK_SH)){//LOCK_NB
+            if(!flock($f, LOCK_EX)){//LOCK_NB
                 $this->_error = "lock file {$filename} failed";
+                fclose($f);
                 return false;
             }
             fwrite($f, $savedata);
+            flock($f, LOCK_UN);
         }else{
             $this->_error = "open file {$filename} failed";
             return false;
-        }
-        //flock($f, LOCK_UN);
+        }        
         fclose($f);
         return true;
     }
     
     public function error(){
-        return $this->_error;
+        $_error = $this->_error;
+        $this->close();
+        return $_error;
     }
     
     public function close(){
-        
+        $this->_error = '';
+        return true;
     }   
 }

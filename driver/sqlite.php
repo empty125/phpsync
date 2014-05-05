@@ -123,15 +123,31 @@ class Sc_Driver_Sqlite {
     
     /**
      * 获取部分列表
-     * @return type
+     * @param type $params
+     * @param type $start
+     * @param type $limit
+     * @return boolean
      */
-    public function getPage($start=0,$limit=10){
-        $statement = $this->_handle->prepare('SELECT * FROM node_files LIMIT :limit OFFSET :start');
+    public function getPage($params=array(),$start=0,$limit=10){
+        $sql = 'SELECT * FROM node_files';
+        if(!empty($params)){
+            $condition = array();
+            foreach ($params as $k=>$v){
+                $condition[] = " {$k} = :{$k}";
+            }
+            $sql.=' WHERE '.implode(' AND ', $condition);
+        }
+        $sql.=' LIMIT :limit OFFSET :start';
+        $statement = $this->_handle->prepare($sql);
         if($statement === false) {
             return false;
         }
+        echo $sql;
         $statement->bindValue(':start',$start,SQLITE3_INTEGER);
         $statement->bindValue(':limit',$limit,SQLITE3_INTEGER);
+        foreach ($params as $k=>$v){
+            $statement->bindValue(":{$k}", $v);
+        }
         $result = $statement->execute();
         
         $rows = array();
@@ -231,6 +247,9 @@ class Sc_Driver_Sqlite {
      * @return type
      */
     public function error(){
+        if(empty($this->_handle)){
+            return '';
+        }
         $error = $this->_handle->lastErrorMsg();
         if(!$this->_handle->lastErrorCode()){
             $error = $this->_error;
