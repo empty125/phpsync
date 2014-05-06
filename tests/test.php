@@ -33,13 +33,9 @@ class Test{
         if(empty(self::$d)){
             self::$d = new Sc_Driver_File();
         }
-        var_dump(self::$d->delete(array('hash'=>'hash1','node'=>'192.168.1.1')));
+        var_dump(self::$d->delete('82341a6c6f03e3af261a95ba81050c0a'));
     }
+    
 }
 
-//Test::testGet();
-
-var_dump(Sc::checkNode('192.168.1.105'));
-var_dump(Sc::buildUrl('storage', 'download',array(
-                'hashname'=>'asdadsadsa.jpg'
-            )));
+Test::testDel();

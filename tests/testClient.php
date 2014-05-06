@@ -18,4 +18,4 @@ class Test{
     
 }
 
-Test::testFetch();
+Test::testSave();

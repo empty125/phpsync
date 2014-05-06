@@ -118,7 +118,7 @@ class Sc_Storage {
         
         $savefile = $path.$hashname;
         if(!static::$_sync->download($node,$savefile)){
-             Sc_Log::record("[storage syncFile] save failed ".static::$_sync->error(), Sc_Log::ERROR);
+             Sc_Log::record("[storage syncFile] save failed from {$node} ".static::$_sync->error(), Sc_Log::ERROR);
              return Sc::S_SYNC_FAILED;
         }
         if(static::$defaultMod)chmod($savefile, static::$defaultMod);
