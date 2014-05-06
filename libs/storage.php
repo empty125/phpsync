@@ -94,7 +94,7 @@ class Sc_Storage {
         if(static::$_sync == NULL){
             static::initSync();
         }
-        if(Sc::checkNode($node)){
+        if(!Sc::checkNode($node)){
             Sc_Log::record("[storage syncFile] bad node parameter {$node}", Sc_Log::ERROR);
             return Sc::S_BAD_PARAMETER;
         }
@@ -111,6 +111,7 @@ class Sc_Storage {
         
         if(property_exists(static::$_sync, 'remote')){
             static::$_sync->remote = Sc::buildUrl('storage', 'download',array(
+                'node'=>$node,
                 'hashname'=>$hashname
             ));
         }

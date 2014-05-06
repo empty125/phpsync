@@ -9,7 +9,7 @@ class Test{
     }
     
     static public function testSave(){
-       var_dump(Sc_Client::saveFile(__DIR__.'/meizhi.jpg'));
+       var_dump(Sc_Client::saveFile(__DIR__.'/img.jpg'));
     }    
     
     static public function testDelete(){

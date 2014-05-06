@@ -37,4 +37,9 @@ class Test{
     }
 }
 
-Test::testGet();
+//Test::testGet();
+
+var_dump(Sc::checkNode('192.168.1.105'));
+var_dump(Sc::buildUrl('storage', 'download',array(
+                'hashname'=>'asdadsadsa.jpg'
+            )));
