@@ -37,5 +37,5 @@ class Test{
     }
     
 }
-
+//$a = 1/0;
 Test::testDel();

@@ -54,14 +54,25 @@ class Sc {
    static private $_client_ip = NULL;
    
    static public $rootDir = NULL;
-
+   
+   static public $dataPath = NULL;
    
    static public function init(){
-       static::$rootDir = str_replace("\\", '/',  __DIR__);       
+       static::$rootDir = str_replace("\\", '/',  __DIR__);
+       
+       static::$dataPath = static::$rootDir.'/data';
+       if(!is_writable(static::$dataPath)){
+           exit('data path is not writable');
+       }
       
        date_default_timezone_set('Asia/Shanghai');
+       
+       set_error_handler(array('Sc','errorHandler'));
+       
+       set_exception_handler(array('Sc','exceptionHandler'));
+       
        spl_autoload_register(array('Sc','autoload')); 
-        
+       
        register_shutdown_function(array('Sc','shutdown'));    
    }
    
@@ -81,6 +92,38 @@ class Sc {
    static public function shutdown(){
        if(class_exists('Sc_Log')){
            Sc_Log::save();
+       }
+   }
+   
+   /**
+    * exception handle
+    */
+   static public function exceptionHandler($e){
+     if(Sc_Log::enableLevel(Sc_Log::ERROR)){       
+        Sc_Log::record("[execption]".$e->getMessage().";file:".$e->getFile().",line:".$e->getLine(),  Sc_Log::ERROR);
+     }
+   }
+   
+   /**
+    * error handle
+    */
+   static public function errorHandler($errno, $errstr, $errfile, $errline){
+       switch($errno){
+           case E_ERROR:
+           case E_PARSE:
+           case E_USER_ERROR:
+           case E_CORE_ERROR:
+           case E_COMPILE_ERROR:
+               if(Sc_Log::enableLevel(Sc_Log::ERROR)){
+                 Sc_Log::record("[error]$errstr;code: {$errno}, file:".$errfile." line: $errline",  Sc_Log::ERROR);
+               }
+               break;
+           case E_WARNING:
+           case E_USER_WARNING:
+               if(Sc_Log::enableLevel(Sc_Log::WARN)){
+                 Sc_Log::record("[error]$errstr;code: {$errno}, file:".$errfile." line: $errline",  Sc_Log::WARN);
+               }
+               break;
        }
    }
 
@@ -116,14 +159,13 @@ class Sc {
     * 检查是否是name server
     * @return type
     */
-   static public function checkIsNameServer(){
-        static $_isnameserver = NULL;
-        if($_isnameserver === NULL){
-            if(static::isCli()){
-                $_isnameserver = true;
-            }else{
-                $_isnameserver = strpos(static::getConfig('name_server'),$_SERVER['SERVER_ADDR']) === 0;
-            }
+   static public function checkIsNameServer($client = NULL){
+        $_isnameserver = false;
+        if(static::isCli()){
+            $_isnameserver = true;
+        }else{
+            $ip = empty($client) ? $_SERVER['SERVER_ADDR'] : $client;
+            $_isnameserver = strpos(static::getConfig('name_server'),$ip) === 0;
         }
         return $_isnameserver;
    } 

@@ -50,8 +50,7 @@ class Sc_Driver_Sqlite {
      */
     public function connect($mode = SQLITE3_OPEN_READWRITE){
         if(!extension_loaded('sqlite3')){
-            Sc_Log::record('must be sqlite3 extension');
-            throw new Exception('must be sqlite3 extension',-100);
+            throw new Exception('must be sqlite3 extension',500);
         }
         $dbfile = Sc::$rootDir.'/data/sys/phpsync.db';
         $this->_handle = new SQLite3($dbfile,$mode);  

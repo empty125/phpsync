@@ -2,26 +2,21 @@
 /**
  * nameserver 简单web管理 文件信息
  * 
- * 强烈建议将此文件名更改,如admin_formzuser.php
+ * 强烈建议将此文件名更改,如:admin_536995c42d4ca.php
  * @author xilei
  */
-
+;
 //设置 admin key
 define('SC_ADMIN_KEY','123456');
 
 session_name('PHPSYNC_ADMIN_ID');
 session_start();
 
-
 require __DIR__.'/sc.php';
 
-$adminfile = basename(__FILE__);
+define('SC_INDEXFILE', basename(__FILE__));
 
-if(!Sc::checkIsNameServer()){
-    $nameserver = Sc::getConfig('name_server');
-    header("Location:http://{$nameserver}/$adminfile");
-    exit();
-}
+Sc_Admin::init();
 
 Sc_Admin::module();
 
@@ -30,12 +25,16 @@ Sc_Admin::module();
  */
 class Sc_Admin{
     
-    static public $modules =array('auth','manager','error','quit');
+    static public $modules =array('auth','manager','error','quit','syncFile');
     
     static public $currentModule = '';
     
     static public $viewData = array();
     
+    /**
+     * 认证
+     * @param type $params
+     */
     static public function auth($params){
         if(isset($params['adminkey']) && trim($params['adminkey']) === SC_ADMIN_KEY){
             $_SESSION['adminkey'] = hash('md5', $params['adminkey']);
@@ -48,7 +47,9 @@ class Sc_Admin{
         return isset($_SESSION['adminkey']);
     }
 
-
+    /**
+     * 管理主页
+     */
     static public function manager(){
         self::$viewData = array(
             array('hash'=>'82341a6c6f03e3af261a95ba81050c0a','node'=>'192.168.1.1','savetime'=>time(),'suffix'=>'.jpg'),
@@ -57,60 +58,110 @@ class Sc_Admin{
         self::$currentModule = 'manager';
     }
     
+    /**
+     * 错误页
+     * @param type $message
+     * @param type $code
+     */
     static public function error($message,$code = NULL){
+               
         if(!empty($code)){
             Sc_Util::sendHttpStatus($code);
         }
         self::$viewData = array(
             'message'=>$message
         );
-        
         self::$currentModule = 'error';
     }
     
+    /**
+     * 退出
+     */
     static public function quit(){
         $_SESSION['adminkey'] = NULL;
         session_destroy();
         self::redirect('auth');
     }
     
+    /**
+     * 删除记录
+     */
     static public function delete(){
         
     }
-
-    static public function isAuthModule($module){
-        return $module == 'auth';
+    
+    /**
+     * 同步文件(节点)
+     */
+    static public function syncFile(){
+        
     }
     
-    static public function redirect($module){
-         header("Location:{$adminfile}?m=$module");exit;
-    }
-
-    static public function module(){
-        $module = isset($_REQUEST['m']) && in_array($_REQUEST['m'], self::$modules) ?
-        $_REQUEST['m'] : '' ;
-        if(empty($module)){
-            if(self::isAuth()){
+    /**
+     * 检查权限
+     * @return boolean
+     */
+    static public function checkAccess(){
+        $nameserver= Sc::getConfig('name_server');
+        if(self::$currentModule == 'syncFile'){
+            $client = Sc_Util::get_client_ip();
+            if(!empty($client)&&!empty($nameserver)&&Sc::checkIsNameServer($client)){
+                return;
+            }else{
+                Sc_Util::sendHttpStatus(403);exit;
+            }
+        }
+        
+        if(!Sc::checkIsNameServer()) {
+            header("Location:http://{$nameserver}/".SC_INDEXFILE);
+            exit();
+        }
+        
+        if(self::$currentModule != 'auth'){
+            if(!self::isAuth()){
+                self::redirect('auth');
+            }elseif(empty(self::$currentModule)){
+                self::redirect('manager');                
+            }elseif(!in_array(self::$currentModule, self::$modules)){
                 self::error('模块没有找到',404);
             }
-            return ;
         }
-        
-        if(!self::isAuthModule($module) && !self::isAuth()){
-             self::redirect('auth');
+    }
+    
+
+    static public function redirect($module){
+        $target = SC_INDEXFILE."?m={$module}";
+        if(!headers_sent()){
+            header("Location:".$target);
+        }else{
+            echo "<!DOCTYPE html><html><head><meta charset='utf-8'/><meta http-equiv='Refresh' content='0;URL={$target}'></head></html>";
         }
+        exit;
+    }
+    
+    static public function init(){
+        self::$currentModule =isset($_REQUEST['m']) ? $_REQUEST['m'] : '';
+    }
+
+    static public function module(){      
+        self::checkAccess();
         
-        if(isset($_REQUEST['m'])) unset($_REQUEST['m']);
-        call_user_func(array(self,$module), $_REQUEST);
-       
+        if(self::$currentModule!='error'){
+            if(isset($_REQUEST['m'])) unset($_REQUEST['m']);
+            call_user_func(array(self,self::$currentModule), $_REQUEST);
+        }
+    }
+    
+    
+    static public function driver(){
+        
     }
 }
 ?><!DOCTYPE HTML>
-<html lang="en-US">
+<html lang="cn-ZH">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" type="text/css" href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.css"/>
-    <script src="http://libs.baidu.com/jquery/1.9.0/jquery.js"></script>
+    <link rel="stylesheet" type="text/css" href="http://libs.baidu.com/bootstrap/3.0.3/css/bootstrap.min.css"/>    
     <title>phpsync &middot; admin</title>
 </head>
 <body>
@@ -121,7 +172,7 @@ class Sc_Admin{
 <?php if(!Sc_Admin::isAuth() or Sc_Admin::$currentModule == 'auth'): ?>
 
 <div class="well" style="text-align:center">
- <form class="form-inline" method="post">
+    <form class="form-inline" method="post" action="">
      <div class="form-group">
          <input type="password" class="form-control"  placeholder="admin key" name="adminkey"/>
      </div>
@@ -129,18 +180,21 @@ class Sc_Admin{
      <button type="submit"  class="btn btn-primary">Enter</button>
  </form>
  </div>
-<?php elseif (Sc_Admin::$currentModule == 'manager'): ?>
+<?php else:?>
+<script src="http://libs.baidu.com/jquery/2.0.0/jquery.min.js"></script>
+<?php if (Sc_Admin::$currentModule == 'manager'): ?>
 <div class="panel panel-primary">
     <div class="panel-heading">tracker文件记录管理</div>
     <div class="panel-body">
         <div style="text-align:center">
-        <form class="form-inline" >
+            <form class="form-inline" method="get" action="" >
           <div class="form-group">
             <input type="text" class="form-control" placeholder="name">
           </div>
           <div class="form-group">
             <input type="text" class="form-control" placeholder="node">
           </div>
+           <input type="hidden" name="m" value="manager"/>
           <button type="submit" class="btn btn-default">search</button>
         </form>
         </div>
@@ -156,7 +210,7 @@ class Sc_Admin{
        </tr>
      </thead>
      <tbody>
-       <?php foreach (Sc_Admin::$viewData as $item): ?>
+       <?php if(!empty(Sc_Admin::$viewData)): foreach (Sc_Admin::$viewData as $item): ?>
        <tr>
          <td><?php echo $item['hash']; ?></td>
          <td><?php echo $item['node']; ?></td>
@@ -164,22 +218,24 @@ class Sc_Admin{
          <td><?php echo $item['suffix']; ?></td>
          <td><a href="javascript:void(0)" class="del">delete</a></td>
        </tr>  
-       <?php endforeach; ?>
+       <?php endforeach;else: ?>
+       <tr><td colspan="5" style="text-align: center;color:silver;">没有文件记录。</td></tr>
+       <?php endif; ?>
      </tbody>
    </table>
    <div style="margin-right:10px;margin-left: 10px;"><ul class="pager">
-  <li class="previous"><a href="#">prev</a></li>
-  <li class="next"><a href="#">next</a></li>
+    <li class="previous"><a href="#">prev</a></li>
+    <li class="next"><a href="#">next</a></li>
    </ul></div>
         
 </div>
 <?php elseif(Sc_Admin::$currentModule == 'error'): ?>
-    <div class="alert alert-danger"><?php
-    echo empty(Sc_Admin::$viewData['message']) ? '' : Sc_Admin::$viewData['message']; ?>
-        <a href="<?php echo $adminfile.(Sc_Admin::isAuth() ? '?m=manager' : '?m=auth')  ?>">返回</a></div>
+<div class="alert alert-danger"><?php
+    echo (empty(Sc_Admin::$viewData['message']) ? '' : Sc_Admin::$viewData['message']); ?>
+    <a href="<?php echo SC_INDEXFILE.(Sc_Admin::isAuth() ? '?m=manager' : '?m=auth')  ?>">返回</a></div>
 <?php else:?>
     
-<?php endif;?>
+<?php endif;endif;?>
 </div>
 </body>
 </html>

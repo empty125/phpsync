@@ -37,9 +37,11 @@ class Sc_Log {
         if(empty(static::$_data)){
             return ;
         }
-        $path = Sc::$rootDir.'/data/log';
+        $path = Sc::$dataPath.'/log';
         if(!is_dir($path)){
-            @mkdir($path,0755,true);
+            if(!@mkdir($path,0755,true)){
+                throw new Exception("creation log dir failed",500);
+            }
         }
         $logfile = $path.'/phpsync'.date('Y-n').'.log';
         error_log(date('Y-n-j H:i:s')."\r\n".implode(static::$_data),3,$logfile);

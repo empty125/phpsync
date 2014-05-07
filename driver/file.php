@@ -18,8 +18,7 @@ class Sc_Driver_File {
     public function __construct(){
         $basePath = SC_DRIVER_FILE_PATH;
         if(!is_dir($basePath) && !@mkdir($basePath,0755,true)){
-            Sc_Log::record("[driver file] dir creation failed {$basePath}",  Sc_Log::ERROR);
-            throw new Exception('dir creation failed', -100);
+            throw new Exception("dir creation failed {$basePath}", 500);
         }  
     }
     /**
