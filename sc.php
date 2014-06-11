@@ -90,7 +90,7 @@ class Sc {
     * shutdown
     */
    static public function shutdown(){
-       if(class_exists('Sc_Log')){
+       if(class_exists('Sc_Log',false)){
            Sc_Log::save();
        }
    }
