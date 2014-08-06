@@ -221,20 +221,12 @@ class Sc_Driver_File {
         }
         $savedata = "<?php return !defined('SC_DRIVER_FILE_PATH') ?  false : "
         . str_replace(array("\n","\t"," "),"",var_export($persistence,true)).";?>";
-        $f = fopen($filename, 'w+');
-        if($f){
-            if(!flock($f, LOCK_EX)){//LOCK_NB
-                $this->_error = "lock file {$filename} failed";
-                fclose($f);
-                return false;
-            }
-            fwrite($f, $savedata);
-            flock($f, LOCK_UN);
+        if(file_put_contents($filename, $savedata,LOCK_EX)!==false){
+            return true;
         }else{
-            $this->_error = "open file {$filename} failed";
+            $this->_error = "write file {$filename} failed";
             return false;
-        }        
-        fclose($f);
+        }
         return true;
     }
     
