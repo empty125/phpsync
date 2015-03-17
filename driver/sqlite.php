@@ -141,7 +141,6 @@ class Sc_Driver_Sqlite {
         if($statement === false) {
             return false;
         }
-        echo $sql;
         $statement->bindValue(':start',$start,SQLITE3_INTEGER);
         $statement->bindValue(':limit',$limit,SQLITE3_INTEGER);
         foreach ($params as $k=>$v){
